@@ -1,19 +1,24 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 const themes = [
-  { name: 'Classic Brown', class: 'theme-brown', primary: 'bg-amber-800', secondary: 'bg-amber-100' },
-  { name: 'Warm Orange', class: 'theme-orange', primary: 'bg-orange-800', secondary: 'bg-orange-100' },
-  { name: 'Rich Mahogany', class: 'theme-mahogany', primary: 'bg-red-900', secondary: 'bg-red-100' },
-  { name: 'Golden Amber', class: 'theme-gold', primary: 'bg-yellow-800', secondary: 'bg-yellow-100' }
+  { name: 'Light Theme', class: 'theme-light', primary: 'bg-amber-800', secondary: 'bg-amber-50' },
+  { name: 'Dark Theme', class: 'theme-dark', primary: 'bg-gray-800', secondary: 'bg-gray-100' },
+  { name: 'Warm Brown', class: 'theme-brown', primary: 'bg-amber-900', secondary: 'bg-amber-100' },
+  { name: 'Rich Mahogany', class: 'theme-mahogany', primary: 'bg-red-900', secondary: 'bg-red-100' }
 ];
 
 const ThemeToggle = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTheme, setActiveTheme] = useState('theme-brown');
+  const [activeTheme, setActiveTheme] = useState('theme-light');
+
+  useEffect(() => {
+    // Set default theme on load
+    document.documentElement.classList.add('theme-light');
+  }, []);
 
   const changeTheme = (themeClass: string) => {
     // Remove all theme classes
@@ -23,6 +28,37 @@ const ThemeToggle = () => {
     
     // Add the selected theme class
     document.documentElement.classList.add(themeClass);
+    
+    // Apply theme-specific CSS variables
+    const root = document.documentElement;
+    
+    switch (themeClass) {
+      case 'theme-dark':
+        root.style.setProperty('--background', '0 0% 5%');
+        root.style.setProperty('--foreground', '0 0% 98%');
+        root.style.setProperty('--card', '0 0% 8%');
+        root.style.setProperty('--card-foreground', '0 0% 98%');
+        break;
+      case 'theme-brown':
+        root.style.setProperty('--background', '39 100% 97%');
+        root.style.setProperty('--foreground', '39 100% 15%');
+        root.style.setProperty('--card', '0 0% 100%');
+        root.style.setProperty('--card-foreground', '39 100% 15%');
+        break;
+      case 'theme-mahogany':
+        root.style.setProperty('--background', '0 100% 97%');
+        root.style.setProperty('--foreground', '0 100% 15%');
+        root.style.setProperty('--card', '0 0% 100%');
+        root.style.setProperty('--card-foreground', '0 100% 15%');
+        break;
+      default: // theme-light
+        root.style.setProperty('--background', '0 0% 100%');
+        root.style.setProperty('--foreground', '0 0% 3.9%');
+        root.style.setProperty('--card', '0 0% 100%');
+        root.style.setProperty('--card-foreground', '0 0% 3.9%');
+        break;
+    }
+    
     setActiveTheme(themeClass);
     setIsOpen(false);
   };
@@ -40,7 +76,7 @@ const ThemeToggle = () => {
       {isOpen && (
         <Card className="fixed bottom-40 left-6 w-64 shadow-2xl z-40 border-2 border-amber-200">
           <CardContent className="p-4">
-            <h3 className="font-semibold text-amber-900 mb-4">Choose Theme</h3>
+            <h3 className="font-semibold text-amber-900 mb-4">App Appearance</h3>
             <div className="space-y-2">
               {themes.map((theme) => (
                 <button

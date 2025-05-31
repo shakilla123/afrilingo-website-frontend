@@ -16,9 +16,17 @@ const Header = () => {
     }, 2000);
   };
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsMenuOpen(false);
+  };
+
   return (
     <>
-      <header className="bg-amber-50 shadow-sm border-b border-amber-200">
+      <header className="bg-amber-50 shadow-sm border-b border-amber-200 fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -31,18 +39,30 @@ const Header = () => {
             </div>
             
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#courses" className="text-amber-700 hover:text-amber-900 font-medium transition-colors">
+              <button 
+                onClick={() => scrollToSection('courses')}
+                className="text-amber-700 hover:text-amber-900 font-medium transition-colors"
+              >
                 Courses
-              </a>
-              <a href="#about" className="text-amber-700 hover:text-amber-900 font-medium transition-colors">
+              </button>
+              <button 
+                onClick={() => scrollToSection('about')}
+                className="text-amber-700 hover:text-amber-900 font-medium transition-colors"
+              >
                 About
-              </a>
-              <a href="#features" className="text-amber-700 hover:text-amber-900 font-medium transition-colors">
+              </button>
+              <button 
+                onClick={() => scrollToSection('features')}
+                className="text-amber-700 hover:text-amber-900 font-medium transition-colors"
+              >
                 Features
-              </a>
-              <a href="#contact" className="text-amber-700 hover:text-amber-900 font-medium transition-colors">
+              </button>
+              <button 
+                onClick={() => scrollToSection('contact')}
+                className="text-amber-700 hover:text-amber-900 font-medium transition-colors"
+              >
                 Contact
-              </a>
+              </button>
             </nav>
 
             <div className="hidden md:flex items-center space-x-4">
@@ -69,18 +89,30 @@ const Header = () => {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t border-amber-200">
               <div className="flex flex-col space-y-4">
-                <a href="#courses" className="text-amber-700 hover:text-amber-900 font-medium">
+                <button 
+                  onClick={() => scrollToSection('courses')}
+                  className="text-amber-700 hover:text-amber-900 font-medium text-left"
+                >
                   Courses
-                </a>
-                <a href="#about" className="text-amber-700 hover:text-amber-900 font-medium">
+                </button>
+                <button 
+                  onClick={() => scrollToSection('about')}
+                  className="text-amber-700 hover:text-amber-900 font-medium text-left"
+                >
                   About
-                </a>
-                <a href="#features" className="text-amber-700 hover:text-amber-900 font-medium">
+                </button>
+                <button 
+                  onClick={() => scrollToSection('features')}
+                  className="text-amber-700 hover:text-amber-900 font-medium text-left"
+                >
                   Features
-                </a>
-                <a href="#contact" className="text-amber-700 hover:text-amber-900 font-medium">
+                </button>
+                <button 
+                  onClick={() => scrollToSection('contact')}
+                  className="text-amber-700 hover:text-amber-900 font-medium text-left"
+                >
                   Contact
-                </a>
+                </button>
                 <div className="flex flex-col space-y-2 pt-4">
                   <AuthDialog onSuccess={handleAuthSuccess}>
                     <Button variant="outline" className="border-amber-600 text-amber-700">

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { MessageCircle, Send, X, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Muraho! Witwa mute? Welcome to Afrilingo! I\'m here to help you learn Kinyarwanda and other African languages. What would you like to practice today?',
+      text: 'Muraho! Amakuru? Welcome to Afrilingo! I\'m here to help you learn Kinyarwanda and answer any questions about our platform. What would you like to know today?',
       sender: 'bot',
       timestamp: new Date()
     }
@@ -25,7 +26,7 @@ const ChatBot = () => {
   const [inputMessage, setInputMessage] = useState('');
 
   const predefinedResponses = {
-    'hello': 'Muraho! That means "hello" in Kinyarwanda. Would you like to learn more greetings like "Amakuru" (how are you)?',
+    'hello': 'Muraho! That means "hello" in Kinyarwanda. Would you like to learn more greetings like "Amakuru?" (how are you?)',
     'help': 'I can help you with pronunciation, translations, cultural context, and practice conversations in Kinyarwanda. What interests you most?',
     'kinyarwanda': 'Kinyarwanda is the official language of Rwanda spoken by over 12 million people. Let\'s start with basics: Muraho (Hello), Murakoze (Thank you), Murakaza neza (Welcome).',
     'swahili': 'Swahili is a beautiful language spoken by over 100 million people. Here are some basics: Jambo (Hello), Asante (Thank you), Karibu (Welcome).',
@@ -91,7 +92,7 @@ const ChatBot = () => {
       {/* Chat Window */}
       {isOpen && (
         <Card className="fixed bottom-24 right-6 w-80 h-96 shadow-2xl z-40 border-2 border-amber-200">
-          <CardHeader className="bg-amber-800 text-amber-50 rounded-t-lg">
+          <CardHeader className="bg-amber-800 text-amber-50 rounded-t-lg p-4">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Bot className="h-5 w-5" />
               Afrilingo Assistant
@@ -99,7 +100,7 @@ const ChatBot = () => {
           </CardHeader>
           
           <CardContent className="p-0 flex flex-col h-full">
-            <ScrollArea className="flex-1 p-4">
+            <ScrollArea className="flex-1 p-4 max-h-64">
               <div className="space-y-4">
                 {messages.map((message) => (
                   <div
@@ -130,19 +131,19 @@ const ChatBot = () => {
               </div>
             </ScrollArea>
             
-            <div className="p-4 border-t border-amber-200">
+            <div className="p-4 border-t border-amber-200 bg-white rounded-b-lg">
               <div className="flex gap-2">
                 <Input
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask me about Kinyarwanda..."
-                  className="flex-1"
+                  className="flex-1 border-amber-300 focus:border-amber-500"
                 />
                 <Button
                   onClick={sendMessage}
                   size="icon"
-                  className="bg-amber-800 hover:bg-amber-900"
+                  className="bg-amber-800 hover:bg-amber-900 flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
