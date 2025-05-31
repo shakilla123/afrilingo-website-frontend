@@ -1,5 +1,5 @@
 
-import { Menu, X, Globe, User } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import AuthDialog from './AuthDialog';
@@ -22,7 +22,11 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Globe className="h-8 w-8 text-amber-800" />
+              <img 
+                src="/lovable-uploads/11afa540-f243-4c5a-93e4-f75f0daebf89.png" 
+                alt="Afrilingo Logo" 
+                className="h-8 w-8 rounded-full"
+              />
               <span className="text-2xl font-bold text-amber-900">Afrilingo</span>
             </div>
             

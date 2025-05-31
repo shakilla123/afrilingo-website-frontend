@@ -12,7 +12,7 @@ const HeroSection = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl md:text-6xl font-bold text-amber-900 leading-tight">
-                Learn <span className="text-amber-700">African</span> Languages with <span className="text-orange-700">Afrilingo</span>
+                Learn <span className="text-amber-900">African</span> Languages with <span className="text-amber-900">Afrilingo</span>
               </h1>
               <p className="text-xl text-amber-800 leading-relaxed">
                 Discover the rich diversity of African languages through interactive lessons, cultural insights, and native speaker guidance.
@@ -58,7 +58,7 @@ const HeroSection = () => {
                       <BookOpen className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-amber-900">Swahili Basics</h3>
+                      <h3 className="font-semibold text-amber-900">Kinyarwanda Basics</h3>
                       <p className="text-sm text-amber-700">Lesson 1: Greetings</p>
                     </div>
                   </div>
