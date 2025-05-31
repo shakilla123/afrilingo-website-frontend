@@ -5,9 +5,9 @@ import MobileAppSection from '@/components/MobileAppSection';
 import CourseSection from '@/components/CourseSection';
 import ExploreFeaturesSection from '@/components/ExploreFeaturesSection';
 import FeaturesSection from '@/components/FeaturesSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
 import Footer from '@/components/Footer';
 import ChatBot from '@/components/ChatBot';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Index = () => {
   return (
@@ -18,9 +18,9 @@ const Index = () => {
       <CourseSection />
       <ExploreFeaturesSection />
       <FeaturesSection />
-      <TestimonialsSection />
       <Footer />
       <ChatBot />
+      <ThemeToggle />
     </div>
   );
 };

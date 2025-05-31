@@ -1,5 +1,4 @@
-
-import { Play, Star, Users, BookOpen } from 'lucide-react';
+import { Users, BookOpen, Facebook, Twitter, Instagram, Youtube, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AuthDialog from './AuthDialog';
@@ -25,10 +24,25 @@ const HeroSection = () => {
                   Start Learning Free
                 </Button>
               </AuthDialog>
-              <Button size="lg" variant="outline" className="border-amber-600 text-amber-700 hover:bg-amber-100 px-8 py-4 text-lg flex items-center gap-2">
-                <Play className="h-5 w-5" />
-                Watch Demo
-              </Button>
+              
+              {/* Social Media Links */}
+              <div className="flex items-center gap-3">
+                <span className="text-amber-700 font-medium">Follow us:</span>
+                <div className="flex gap-2">
+                  <Button size="icon" variant="outline" className="border-amber-600 text-amber-700 hover:bg-amber-100">
+                    <Facebook className="h-4 w-4" />
+                  </Button>
+                  <Button size="icon" variant="outline" className="border-amber-600 text-amber-700 hover:bg-amber-100">
+                    <Twitter className="h-4 w-4" />
+                  </Button>
+                  <Button size="icon" variant="outline" className="border-amber-600 text-amber-700 hover:bg-amber-100">
+                    <Instagram className="h-4 w-4" />
+                  </Button>
+                  <Button size="icon" variant="outline" className="border-amber-600 text-amber-700 hover:bg-amber-100">
+                    <Youtube className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center gap-8">

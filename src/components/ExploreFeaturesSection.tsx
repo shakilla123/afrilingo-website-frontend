@@ -5,6 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
+const languages = [
+  { id: 'kinyarwanda', name: 'Kinyarwanda', flag: '🇷🇼' },
+  { id: 'swahili', name: 'Swahili', flag: '🇹🇿' },
+  { id: 'zulu', name: 'Zulu', flag: '🇿🇦' },
+  { id: 'yoruba', name: 'Yoruba', flag: '🇳🇬' }
+];
+
 const features = [
   {
     id: 'courses',
@@ -58,24 +65,25 @@ const features = [
 
 const ExploreFeaturesSection = () => {
   const [activeFeature, setActiveFeature] = useState('courses');
+  const [selectedLanguage, setSelectedLanguage] = useState('kinyarwanda');
 
   const currentFeature = features.find(f => f.id === activeFeature) || features[0];
 
   return (
     <section className="py-20 bg-gradient-to-br from-amber-900 via-orange-900 to-red-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-amber-50 mb-6">
             Explore Our Features
           </h2>
-          <p className="text-xl text-amber-100 max-w-3xl mx-auto">
+          <p className="text-xl text-amber-100 max-w-2xl mx-auto">
             Discover the comprehensive tools that make Afrilingo the most effective way to learn African languages
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6">
           {/* Feature Cards */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 space-y-3">
             {features.map((feature) => (
               <Card 
                 key={feature.id}
@@ -86,14 +94,14 @@ const ExploreFeaturesSection = () => {
                 }`}
                 onClick={() => setActiveFeature(feature.id)}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-lg ${feature.color} flex items-center justify-center`}>
-                      <feature.icon className="h-6 w-6" />
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg ${feature.color} flex items-center justify-center`}>
+                      <feature.icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-amber-900">{feature.title}</h3>
-                      <p className="text-sm text-amber-700">{feature.description}</p>
+                      <h3 className="font-semibold text-amber-900 text-sm">{feature.title}</h3>
+                      <p className="text-xs text-amber-700">{feature.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -105,29 +113,49 @@ const ExploreFeaturesSection = () => {
           <div className="lg:col-span-2">
             <Card className="bg-white/95 backdrop-blur border-0 shadow-2xl">
               <CardHeader className="text-center pb-4">
-                <div className={`w-20 h-20 mx-auto rounded-2xl ${currentFeature.color} flex items-center justify-center mb-4`}>
-                  <currentFeature.icon className="h-10 w-10" />
+                <div className={`w-16 h-16 mx-auto rounded-2xl ${currentFeature.color} flex items-center justify-center mb-4`}>
+                  <currentFeature.icon className="h-8 w-8" />
                 </div>
-                <CardTitle className="text-2xl text-amber-900">{currentFeature.content.subtitle}</CardTitle>
+                <CardTitle className="text-xl text-amber-900">{currentFeature.content.subtitle}</CardTitle>
+                
+                {/* Language Selection Bar */}
+                {activeFeature === 'courses' && (
+                  <div className="flex justify-center gap-2 mt-4">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.id}
+                        onClick={() => setSelectedLanguage(lang.id)}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                          selectedLanguage === lang.id
+                            ? 'bg-amber-800 text-white'
+                            : 'bg-amber-100 text-amber-800 hover:bg-amber-200'
+                        }`}
+                      >
+                        <span className="mr-1">{lang.flag}</span>
+                        {lang.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </CardHeader>
               
-              <CardContent className="space-y-6">
-                <p className="text-amber-800 text-lg leading-relaxed text-center">
+              <CardContent className="space-y-4">
+                <p className="text-amber-800 leading-relaxed text-center">
                   {currentFeature.content.details}
                 </p>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-3">
                   {Object.entries(currentFeature.content.stats).map(([key, value]) => (
-                    <div key={key} className="text-center p-4 bg-amber-50 rounded-lg">
-                      <div className="text-2xl font-bold text-amber-900">{value}</div>
-                      <div className="text-sm text-amber-700 capitalize">{key}</div>
+                    <div key={key} className="text-center p-3 bg-amber-50 rounded-lg">
+                      <div className="text-lg font-bold text-amber-900">{value}</div>
+                      <div className="text-xs text-amber-700 capitalize">{key}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                   <Button size="lg" className="bg-amber-800 hover:bg-amber-900 text-amber-50">
-                    <Play className="h-5 w-5 mr-2" />
+                    <Play className="h-4 w-4 mr-2" />
                     Try {currentFeature.title}
                   </Button>
                   <Button size="lg" variant="outline" className="border-amber-800 text-amber-800 hover:bg-amber-100">
@@ -135,13 +163,13 @@ const ExploreFeaturesSection = () => {
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-center gap-4 pt-4">
+                <div className="flex items-center justify-center gap-4 pt-2">
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+                  <Badge variant="secondary" className="bg-amber-100 text-amber-800 text-xs">
                     <Users className="h-3 w-3 mr-1" />
                     Trusted by 50K+ learners
                   </Badge>

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MessageCircle, Send, X, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,7 @@ const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Jambo! Welcome to Afrilingo. I\'m here to help you learn African languages. What would you like to practice today?',
+      text: 'Muraho! Witwa mute? Welcome to Afrilingo! I\'m here to help you learn Kinyarwanda and other African languages. What would you like to practice today?',
       sender: 'bot',
       timestamp: new Date()
     }
@@ -26,12 +25,13 @@ const ChatBot = () => {
   const [inputMessage, setInputMessage] = useState('');
 
   const predefinedResponses = {
-    'hello': 'Jambo! That means "hello" in Swahili. Would you like to learn more greetings?',
-    'help': 'I can help you with pronunciation, translations, cultural context, and practice conversations. What interests you most?',
-    'swahili': 'Swahili is a beautiful language spoken by over 100 million people. Let\'s start with basic greetings: Jambo (Hello), Asante (Thank you), Karibu (Welcome).',
+    'hello': 'Muraho! That means "hello" in Kinyarwanda. Would you like to learn more greetings like "Amakuru" (how are you)?',
+    'help': 'I can help you with pronunciation, translations, cultural context, and practice conversations in Kinyarwanda. What interests you most?',
+    'kinyarwanda': 'Kinyarwanda is the official language of Rwanda spoken by over 12 million people. Let\'s start with basics: Muraho (Hello), Murakoze (Thank you), Murakaza neza (Welcome).',
+    'swahili': 'Swahili is a beautiful language spoken by over 100 million people. Here are some basics: Jambo (Hello), Asante (Thank you), Karibu (Welcome).',
     'yoruba': 'Yoruba is spoken by over 20 million people. Here are some basics: Bawo (Hello), E se (Thank you), E ku aaro (Good morning).',
-    'translate': 'I can help translate phrases! Just tell me what you\'d like to translate and which language.',
-    'default': 'That\'s interesting! Let me help you explore African languages. Would you like to learn greetings, practice pronunciation, or learn about culture?'
+    'translate': 'I can help translate phrases between Kinyarwanda and English! Just tell me what you\'d like to translate.',
+    'default': 'Ni byiza! That\'s interesting! Let me help you explore Kinyarwanda. Would you like to learn greetings, practice pronunciation, or learn about Rwandan culture?'
   };
 
   const sendMessage = () => {
@@ -136,7 +136,7 @@ const ChatBot = () => {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me anything about African languages..."
+                  placeholder="Ask me about Kinyarwanda..."
                   className="flex-1"
                 />
                 <Button
