@@ -55,10 +55,12 @@ const CourseSection = () => {
           <div className="flex justify-center">
             <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-amber-200 shadow-lg max-w-md">
               <CardHeader className="p-0">
-                <div className="relative overflow-hidden rounded-t-lg h-48 bg-gradient-to-br from-amber-100 to-orange-100">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-8xl">{mainCourse.flag}</div>
-                  </div>
+                <div className="relative overflow-hidden rounded-t-lg h-48 bg-gradient-to-br from-red-100 via-yellow-100 to-green-100 flex items-center justify-center">
+                  <img 
+                    src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=400&fit=crop&crop=center"
+                    alt="Rwanda Flag"
+                    className="w-32 h-20 object-cover rounded-lg shadow-lg"
+                  />
                   <div className="absolute top-4 left-4">
                     <Badge className="bg-green-500 text-white">
                       {mainCourse.price}

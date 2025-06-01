@@ -10,8 +10,12 @@ const MobileAppSection = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-amber-800 rounded-full flex items-center justify-center">
-                <Smartphone className="h-6 w-6 text-amber-50" />
+              <div className="w-12 h-12 bg-amber-800 rounded-full flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/lovable-uploads/11afa540-f243-4c5a-93e4-f75f0daebf89.png" 
+                  alt="Afrilingo Logo" 
+                  className="h-8 w-8 rounded-full object-cover"
+                />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-amber-900">
                 Download Afrilingo App

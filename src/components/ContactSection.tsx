@@ -53,7 +53,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-amber-900">Email Us</h3>
-                    <p className="text-amber-700">support@afrilingo.com</p>
+                    <p className="text-amber-700">afrilingoedtech@gmail.com</p>
                   </div>
                 </div>
               </CardContent>
