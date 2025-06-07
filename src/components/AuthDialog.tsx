@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthDialogProps {
   children: React.ReactNode;
@@ -18,6 +18,7 @@ const AuthDialog = ({ children, onSuccess }: AuthDialogProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,6 +32,8 @@ const AuthDialog = ({ children, onSuccess }: AuthDialogProps) => {
         title: "Welcome back!",
         description: "You have successfully logged in to Afrilingo.",
       });
+      // Navigate to admin dashboard
+      navigate('/admin');
       if (onSuccess) onSuccess();
     }, 1500);
   };
@@ -47,6 +50,8 @@ const AuthDialog = ({ children, onSuccess }: AuthDialogProps) => {
         title: "Account created!",
         description: "Welcome to Afrilingo! Your learning journey begins now.",
       });
+      // Navigate to admin dashboard
+      navigate('/admin');
       if (onSuccess) onSuccess();
     }, 1500);
   };
