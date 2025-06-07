@@ -17,52 +17,60 @@ import { useLocation, Link } from 'react-router-dom';
 
 const menuItems = [
   {
-    title: "Dashboard Home",
+    title: "Dashboard",
     url: "/admin",
     icon: LayoutDashboard,
-    description: "Overview & Analytics"
+    description: "Overview & Analytics",
+    color: "from-blue-500 to-blue-600"
   },
   {
     title: "Courses",
     url: "/admin/courses",
     icon: Book,
-    description: "Manage Language Courses"
+    description: "Language Courses",
+    color: "from-green-500 to-green-600"
   },
   {
     title: "Lessons",
     url: "/admin/lessons",
     icon: BookOpen,
-    description: "Create & Edit Lessons"
+    description: "Create & Edit",
+    color: "from-purple-500 to-purple-600"
   },
   {
     title: "Quizzes",
     url: "/admin/quizzes",
     icon: List,
-    description: "Quiz Management"
+    description: "Quiz Management",
+    color: "from-orange-500 to-orange-600"
   },
   {
     title: "Challenges",
     url: "/admin/challenges",
     icon: Trophy,
-    description: "Bonus Challenges"
+    description: "Bonus Content",
+    color: "from-yellow-500 to-yellow-600"
   },
   {
     title: "Users",
     url: "/admin/users",
     icon: Users,
-    description: "User Management"
+    description: "User Management",
+    color: "from-indigo-500 to-indigo-600"
   },
   {
     title: "Analytics",
     url: "/admin/analytics",
     icon: BarChart3,
-    description: "Progress & Statistics"
+    description: "Statistics",
+    color: "from-pink-500 to-pink-600"
   },
   {
     title: "Settings",
     url: "/admin/settings",
     icon: Settings,
-    description: "System Configuration"
+    description: "Configuration",
+    color: "from-gray-500 to-gray-600"
   },
 ];
 
@@ -70,28 +78,33 @@ export function AdminSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="bg-gradient-to-b from-amber-900 via-amber-800 to-amber-900 text-amber-50 shadow-2xl">
-      <SidebarHeader className="p-6 border-b border-amber-700/50 bg-gradient-to-r from-amber-800/30 to-amber-700/20">
-        <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform duration-200">
+    <Sidebar className="bg-gradient-to-br from-white via-amber-50 to-orange-100 border-r border-amber-200/60 shadow-xl backdrop-blur-sm">
+      <SidebarHeader className="p-4 sm:p-6 border-b border-amber-200/40 bg-gradient-to-r from-amber-100/50 to-orange-100/30">
+        <Link to="/" className="flex items-center gap-3 group hover:scale-[1.02] transition-all duration-300">
           <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl blur-sm opacity-30 group-hover:opacity-50 transition-opacity"></div>
             <img 
               src="/lovable-uploads/11afa540-f243-4c5a-93e4-f75f0daebf89.png" 
               alt="Afrilingo Logo" 
-              className="h-12 w-12 rounded-xl object-cover shadow-lg ring-2 ring-amber-300/30"
+              className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-xl object-cover shadow-lg ring-2 ring-white/50"
             />
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-amber-900 animate-pulse"></div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-white animate-pulse shadow-lg"></div>
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-amber-50 tracking-wide">Afrilingo</h2>
-            <p className="text-sm text-amber-200 font-medium">Admin Portal</p>
+          <div className="hidden sm:block">
+            <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-amber-800 to-orange-700 bg-clip-text text-transparent">
+              Afrilingo
+            </h2>
+            <p className="text-xs sm:text-sm text-amber-600 font-medium">Admin Portal</p>
           </div>
         </Link>
       </SidebarHeader>
       
-      <SidebarContent className="px-2 py-4">
+      <SidebarContent className="px-2 py-4 overflow-y-auto">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-amber-300 font-bold px-4 py-3 text-sm uppercase tracking-wider">
-            📊 Management Hub
+          <SidebarGroupLabel className="text-amber-700 font-bold px-4 py-3 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
+            <div className="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
+            <span className="hidden sm:inline">Management Hub</span>
+            <span className="sm:hidden">Menu</span>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
@@ -102,31 +115,31 @@ export function AdminSidebar() {
                     <SidebarMenuButton 
                       asChild 
                       className={`
-                        group relative overflow-hidden rounded-xl mx-2 transition-all duration-300
+                        group relative overflow-hidden rounded-xl mx-2 transition-all duration-300 hover:shadow-lg
                         ${isActive 
-                          ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-amber-50 shadow-lg scale-105 ring-2 ring-amber-400/50' 
-                          : 'text-amber-100 hover:bg-gradient-to-r hover:from-amber-800/50 hover:to-amber-700/30 hover:text-amber-50 hover:scale-105'
+                          ? `bg-gradient-to-r ${item.color} text-white shadow-lg scale-[1.02] ring-2 ring-white/20` 
+                          : 'text-amber-800 hover:bg-gradient-to-r hover:from-amber-100/60 hover:to-orange-100/40 hover:text-amber-900 hover:scale-[1.02] hover:shadow-md'
                         }
                       `}
                     >
-                      <Link to={item.url} className="flex items-center gap-4 px-4 py-3 w-full">
+                      <Link to={item.url} className="flex items-center gap-3 px-3 py-3 w-full">
                         <div className={`
-                          p-2 rounded-lg transition-all duration-300
+                          p-2 rounded-lg transition-all duration-300 backdrop-blur-sm
                           ${isActive 
-                            ? 'bg-amber-500/30 shadow-lg' 
-                            : 'bg-amber-800/30 group-hover:bg-amber-600/40'
+                            ? 'bg-white/20 shadow-lg' 
+                            : 'bg-white/60 group-hover:bg-white/80 shadow-sm'
                           }
                         `}>
-                          <item.icon className="h-5 w-5" />
+                          <item.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 hidden sm:block">
                           <div className="font-semibold text-sm">{item.title}</div>
-                          <div className={`text-xs transition-colors ${isActive ? 'text-amber-200' : 'text-amber-300/80 group-hover:text-amber-200'}`}>
+                          <div className={`text-xs transition-colors ${isActive ? 'text-white/80' : 'text-amber-600/80 group-hover:text-amber-700'}`}>
                             {item.description}
                           </div>
                         </div>
                         {isActive && (
-                          <div className="w-1 h-8 bg-amber-300 rounded-full shadow-glow"></div>
+                          <div className="w-1 h-6 bg-white/60 rounded-full shadow-sm hidden sm:block"></div>
                         )}
                       </Link>
                     </SidebarMenuButton>
@@ -138,19 +151,19 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-amber-700/50 bg-gradient-to-r from-amber-800/20 to-amber-700/10">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-800/30 hover:bg-amber-700/40 transition-all duration-300 cursor-pointer group">
+      <SidebarFooter className="p-3 sm:p-4 border-t border-amber-200/40 bg-gradient-to-r from-amber-100/30 to-orange-100/20 backdrop-blur-sm">
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-white/60 to-amber-50/80 hover:from-white/80 hover:to-amber-50 transition-all duration-300 cursor-pointer group shadow-sm hover:shadow-md border border-white/40">
           <div className="relative">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center shadow-lg">
-              <User className="h-5 w-5 text-amber-900" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-400 via-orange-400 to-red-400 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+              <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-amber-900"></div>
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-amber-50 group-hover:text-amber-100 transition-colors">Admin User</p>
-            <p className="text-xs text-amber-200/80 truncate">admin@afrilingo.com</p>
+          <div className="flex-1 min-w-0 hidden sm:block">
+            <p className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors">Admin User</p>
+            <p className="text-xs text-amber-700/80 truncate">admin@afrilingo.com</p>
           </div>
-          <div className="w-2 h-2 bg-amber-300 rounded-full opacity-60 group-hover:opacity-100 transition-opacity"></div>
+          <div className="w-2 h-2 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity hidden sm:block"></div>
         </div>
       </SidebarFooter>
     </Sidebar>

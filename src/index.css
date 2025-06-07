@@ -102,6 +102,15 @@
   .shadow-glow {
     box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
   }
+
+  /* Custom responsive utilities */
+  .sidebar-responsive {
+    @apply w-16 sm:w-64 transition-all duration-300;
+  }
+
+  .content-responsive {
+    @apply ml-16 sm:ml-64 transition-all duration-300;
+  }
 }
 
 @keyframes fadeIn {
@@ -112,5 +121,22 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive breakpoint adjustments */
+@media (max-width: 640px) {
+  .sidebar-content {
+    @apply text-xs;
+  }
+  
+  .admin-layout {
+    @apply text-sm;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .sidebar-content {
+    @apply text-sm;
   }
 }
