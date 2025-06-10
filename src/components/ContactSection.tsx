@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 const ContactSection = () => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,12 +18,23 @@ const ContactSection = () => {
     learnerType: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', formData);
-    // Here you would typically send the data to your backend
-    alert('Thank you for your message! We will get back to you soon.');
-    setFormData({ name: '', email: '', subject: '', message: '', learnerType: '' });
+    setIsSubmitting(true);
+    
+    // Simulate form submission
+    setTimeout(() => {
+      console.log('Contact form submitted:', formData);
+      toast({
+        title: "Message Sent Successfully!",
+        description: "Thank you for your message! We will get back to you within 24 hours.",
+      });
+      
+      setFormData({ name: '', email: '', subject: '', message: '', learnerType: '' });
+      setIsSubmitting(false);
+    }, 2000);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -29,6 +42,22 @@ const ContactSection = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleCardClick = (type: 'email' | 'phone') => {
+    if (type === 'email') {
+      window.location.href = 'mailto:afrilingoedtech@gmail.com';
+      toast({
+        title: "Opening Email Client",
+        description: "Redirecting to your default email application...",
+      });
+    } else if (type === 'phone') {
+      window.location.href = 'tel:+250788123456';
+      toast({
+        title: "Initiating Call",
+        description: "Opening phone application...",
+      });
+    }
   };
 
   return (
@@ -45,7 +74,10 @@ const ContactSection = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Contact Information */}
           <div className="space-y-6">
-            <Card className="border-amber-200 bg-white shadow-lg">
+            <Card 
+              className="border-amber-200 bg-white shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105"
+              onClick={() => handleCardClick('email')}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-amber-800 rounded-full flex items-center justify-center">
@@ -53,13 +85,16 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-amber-900">Email Us</h3>
-                    <p className="text-amber-700">afrilingoedtech@gmail.com</p>
+                    <p className="text-amber-700 hover:text-amber-900 transition-colors">afrilingoedtech@gmail.com</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-amber-200 bg-white shadow-lg">
+            <Card 
+              className="border-amber-200 bg-white shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105"
+              onClick={() => handleCardClick('phone')}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-amber-800 rounded-full flex items-center justify-center">
@@ -67,7 +102,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-amber-900">Call Us</h3>
-                    <p className="text-amber-700">+250 788 123 456</p>
+                    <p className="text-amber-700 hover:text-amber-900 transition-colors">+250 788 123 456</p>
                   </div>
                 </div>
               </CardContent>
@@ -112,7 +147,7 @@ const ContactSection = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="name" className="text-amber-900">Full Name *</Label>
+                      <Label htmlFor="name" className="text-amber-900">Full Name</Label>
                       <Input
                         id="name"
                         name="name"
@@ -125,7 +160,7 @@ const ContactSection = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="email" className="text-amber-900">Email Address *</Label>
+                      <Label htmlFor="email" className="text-amber-900">Email Address</Label>
                       <Input
                         id="email"
                         name="email"
@@ -140,7 +175,7 @@ const ContactSection = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="learnerType" className="text-amber-900">I am a... *</Label>
+                    <Label htmlFor="learnerType" className="text-amber-900">I am a...</Label>
                     <select
                       id="learnerType"
                       name="learnerType"
@@ -161,7 +196,7 @@ const ContactSection = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="subject" className="text-amber-900">Subject *</Label>
+                    <Label htmlFor="subject" className="text-amber-900">Subject</Label>
                     <Input
                       id="subject"
                       name="subject"
@@ -175,7 +210,7 @@ const ContactSection = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="message" className="text-amber-900">Message *</Label>
+                    <Label htmlFor="message" className="text-amber-900">Message</Label>
                     <Textarea
                       id="message"
                       name="message"
@@ -190,10 +225,11 @@ const ContactSection = () => {
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-amber-800 hover:bg-amber-900 text-amber-50 py-3 text-lg"
+                    disabled={isSubmitting}
+                    className="w-full bg-amber-800 hover:bg-amber-900 text-amber-50 py-3 text-lg transition-all duration-300 hover:scale-105"
                   >
                     <Send className="h-5 w-5 mr-2" />
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </Button>
                 </form>
               </CardContent>

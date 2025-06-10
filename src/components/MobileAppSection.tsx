@@ -2,8 +2,37 @@
 import { Smartphone, Download, Apple, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 
 const MobileAppSection = () => {
+  const { toast } = useToast();
+
+  const handleiOSDownload = () => {
+    // Implement actual App Store redirect
+    const appStoreUrl = "https://apps.apple.com/app/afrilingo/id123456789"; // Replace with actual App Store URL
+    
+    toast({
+      title: "Redirecting to App Store",
+      description: "Opening Afrilingo on the App Store...",
+    });
+    
+    // Open in new window/tab
+    window.open(appStoreUrl, '_blank');
+  };
+
+  const handleAndroidDownload = () => {
+    // Implement actual Google Play Store redirect
+    const playStoreUrl = "https://play.google.com/store/apps/details?id=com.afrilingo.app"; // Replace with actual Play Store URL
+    
+    toast({
+      title: "Redirecting to Play Store",
+      description: "Opening Afrilingo on Google Play Store...",
+    });
+    
+    // Open in new window/tab
+    window.open(playStoreUrl, '_blank');
+  };
+
   return (
     <section className="py-16 bg-amber-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,7 +80,8 @@ const MobileAppSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
                 size="lg" 
-                className="bg-amber-100 hover:bg-amber-200 text-amber-900 flex items-center gap-2"
+                onClick={handleiOSDownload}
+                className="bg-amber-100 hover:bg-amber-200 text-amber-900 flex items-center gap-2 transition-all duration-300 hover:scale-105"
               >
                 <Apple className="h-5 w-5" />
                 Download for iOS
@@ -59,11 +89,29 @@ const MobileAppSection = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-amber-100 text-amber-100 hover:bg-amber-800 flex items-center gap-2"
+                onClick={handleAndroidDownload}
+                className="border-amber-100 text-amber-100 hover:bg-amber-800 flex items-center gap-2 transition-all duration-300 hover:scale-105"
               >
                 <Play className="h-5 w-5" />
                 Get on Android
               </Button>
+            </div>
+
+            {/* Rwandan Flag Section */}
+            <div className="pt-6 border-t border-amber-800">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-16 h-12 rounded-lg overflow-hidden shadow-lg border-2 border-amber-200">
+                    <div className="h-1/3 bg-blue-500"></div>
+                    <div className="h-1/3 bg-yellow-400"></div>
+                    <div className="h-1/3 bg-green-600"></div>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-amber-100 font-semibold">Now Available in Rwanda</p>
+                  <p className="text-amber-200 text-sm">Experience authentic Kinyarwanda learning</p>
+                </div>
+              </div>
             </div>
           </div>
 
