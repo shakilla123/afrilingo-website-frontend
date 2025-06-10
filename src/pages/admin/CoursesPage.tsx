@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Book, Search, Plus, Users, Star, Edit, Trash2 } from 'lucide-react';
+import { Book, Search, Plus, Users, Star, Edit, Trash2, Eye, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const courses = [
   {
@@ -59,38 +60,101 @@ const courses = [
 ];
 
 export default function CoursesPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const { toast } = useToast();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: "Search Courses",
+      description: searchQuery ? `Searching for: "${searchQuery}"` : "Please enter a search term",
+    });
+  };
+
+  const handleCreateCourse = () => {
+    toast({
+      title: "Create Course",
+      description: "Opening course creation form...",
+    });
+  };
+
+  const handleEditCourse = (courseId: number, title: string) => {
+    toast({
+      title: "Edit Course",
+      description: `Editing "${title}"`,
+    });
+  };
+
+  const handleDeleteCourse = (courseId: number, title: string) => {
+    toast({
+      title: "Delete Course",
+      description: `Are you sure you want to delete "${title}"?`,
+      variant: "destructive",
+    });
+  };
+
+  const handleViewCourse = (courseId: number, title: string) => {
+    toast({
+      title: "View Course",
+      description: `Opening "${title}" details`,
+    });
+  };
+
+  const handleFilter = () => {
+    toast({
+      title: "Filter Courses",
+      description: "Opening filter options...",
+    });
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-amber-900">Courses</h1>
             <p className="text-amber-700">Manage your language courses</p>
           </div>
-          <Link to="/admin/courses/new">
-            <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Course
-            </Button>
-          </Link>
+          <Button 
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+            onClick={handleCreateCourse}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Course
+          </Button>
         </div>
 
         {/* Search and Filters */}
         <Card className="border-amber-200">
           <CardContent className="p-6">
-            <div className="flex gap-4">
+            <form onSubmit={handleSearch} className="flex gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
                 <Input 
                   placeholder="Search courses..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 border-amber-300 focus:border-amber-500"
                 />
               </div>
-              <Button variant="outline" className="border-amber-300 text-amber-700">
+              <Button 
+                type="submit"
+                variant="outline" 
+                className="border-amber-300 text-amber-700 hover:bg-amber-100"
+              >
+                Search
+              </Button>
+              <Button 
+                type="button"
+                variant="outline" 
+                className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                onClick={handleFilter}
+              >
+                <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
-            </div>
+            </form>
           </CardContent>
         </Card>
 
@@ -102,12 +166,12 @@ export default function CoursesPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="text-3xl">{course.flag}</div>
-                    <div>
-                      <CardTitle className="text-lg text-amber-900">{course.title}</CardTitle>
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-lg text-amber-900 truncate">{course.title}</CardTitle>
                       <p className="text-sm text-amber-600">{course.language} • {course.level}</p>
                     </div>
                   </div>
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
                     course.status === 'Published' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
@@ -137,13 +201,30 @@ export default function CoursesPage() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <Link to={`/admin/courses/${course.id}/edit`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full border-amber-300 text-amber-700 hover:bg-amber-100">
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
-                    </Link>
-                    <Button variant="outline" size="sm" className="border-red-300 text-red-700 hover:bg-red-100">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      onClick={() => handleViewCourse(course.id, course.title)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      onClick={() => handleEditCourse(course.id, course.title)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-red-300 text-red-700 hover:bg-red-100"
+                      onClick={() => handleDeleteCourse(course.id, course.title)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
