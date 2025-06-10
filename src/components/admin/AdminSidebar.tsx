@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, Book, Settings, User, Search, List, Users, BarChart3, BookOpen, Trophy } from 'lucide-react';
+import { LayoutDashboard, Book, Settings, User, Search, List, Users, BarChart3, BookOpen, Trophy, Bell } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -65,6 +65,20 @@ const menuItems = [
     icon: BarChart3,
     description: "Statistics",
     color: "from-pink-500 to-pink-600"
+  },
+  {
+    title: "Profile",
+    url: "/admin/profile",
+    icon: User,
+    description: "My Profile",
+    color: "from-teal-500 to-teal-600"
+  },
+  {
+    title: "Notifications",
+    url: "/admin/notifications",
+    icon: Bell,
+    description: "Alerts & Updates",
+    color: "from-red-500 to-red-600"
   },
   {
     title: "Settings",
@@ -160,22 +174,24 @@ export function AdminSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3 sm:p-4 border-t border-amber-200/40 bg-gradient-to-r from-amber-100/30 to-orange-100/20 backdrop-blur-sm">
-        <button 
-          onClick={handleUserClick}
-          className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-white/60 to-amber-50/80 hover:from-white/80 hover:to-amber-50 transition-all duration-300 cursor-pointer group shadow-sm hover:shadow-md border border-white/40 w-full"
-        >
-          <div className="relative flex-shrink-0">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-400 via-orange-400 to-red-400 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-              <User className="h-5 w-5 text-white" />
+        <Link to="/admin/profile">
+          <button 
+            onClick={handleUserClick}
+            className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-white/60 to-amber-50/80 hover:from-white/80 hover:to-amber-50 transition-all duration-300 cursor-pointer group shadow-sm hover:shadow-md border border-white/40 w-full"
+          >
+            <div className="relative flex-shrink-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-400 via-orange-400 to-red-400 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                <User className="h-5 w-5 text-white" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
             </div>
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors truncate">Admin User</p>
-            <p className="text-xs text-amber-700/80 truncate">admin@afrilingo.com</p>
-          </div>
-          <div className="w-2 h-2 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0"></div>
-        </button>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors truncate">Admin User</p>
+              <p className="text-xs text-amber-700/80 truncate">admin@afrilingo.com</p>
+            </div>
+            <div className="w-2 h-2 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0"></div>
+          </button>
+        </Link>
       </SidebarFooter>
     </Sidebar>
   );

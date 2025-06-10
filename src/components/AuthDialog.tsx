@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ interface AuthDialogProps {
 const AuthDialog = ({ children, onSuccess }: AuthDialogProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -45,13 +47,12 @@ const AuthDialog = ({ children, onSuccess }: AuthDialogProps) => {
     // Simulate signup
     setTimeout(() => {
       setLoading(false);
-      setOpen(false);
       toast({
         title: "Account created!",
-        description: "Welcome to Afrilingo! Your learning journey begins now.",
+        description: "Welcome to Afrilingo! Please sign in to continue.",
       });
-      // Navigate to admin dashboard
-      navigate('/admin');
+      // Switch to login tab instead of redirecting to dashboard
+      setActiveTab('login');
       if (onSuccess) onSuccess();
     }, 1500);
   };
@@ -66,7 +67,7 @@ const AuthDialog = ({ children, onSuccess }: AuthDialogProps) => {
           <DialogTitle className="text-center">Welcome to Afrilingo</DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>

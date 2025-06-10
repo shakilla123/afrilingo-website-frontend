@@ -1,381 +1,207 @@
 
-import React, { useState } from 'react';
-import { Trophy, Plus, Edit, Trash2, Clock, Users, Star, Gift } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Trophy, Plus, Edit, Trash2, Users, Clock, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface Challenge {
-  id: string;
-  title: string;
-  description: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  points: number;
-  timeLimit: number;
-  participants: number;
-  status: 'Active' | 'Upcoming' | 'Completed';
-  category: string;
-}
-
-const mockChallenges: Challenge[] = [
-  {
-    id: '1',
-    title: 'Kinyarwanda Pronunciation Challenge',
-    description: 'Master the pronunciation of 50 common Kinyarwanda words',
-    difficulty: 'Beginner',
-    points: 100,
-    timeLimit: 30,
-    participants: 245,
-    status: 'Active',
-    category: 'Pronunciation'
-  },
-  {
-    id: '2',
-    title: 'Cultural Context Quiz',
-    description: 'Test your knowledge of Rwandan cultural contexts and traditions',
-    difficulty: 'Intermediate',
-    points: 200,
-    timeLimit: 45,
-    participants: 156,
-    status: 'Active',
-    category: 'Culture'
-  },
-  {
-    id: '3',
-    title: 'Advanced Grammar Marathon',
-    description: 'Complete complex grammar exercises in record time',
-    difficulty: 'Advanced',
-    points: 300,
-    timeLimit: 60,
-    participants: 89,
-    status: 'Upcoming',
-    category: 'Grammar'
-  }
-];
-
-export default function ChallengesPage() {
-  const [challenges, setChallenges] = useState<Challenge[]>(mockChallenges);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingChallenge, setEditingChallenge] = useState<Challenge | null>(null);
+const ChallengesPage = () => {
   const { toast } = useToast();
 
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    difficulty: 'Beginner' as Challenge['difficulty'],
-    points: 100,
-    timeLimit: 30,
-    category: ''
-  });
+  const challenges = [
+    {
+      id: 1,
+      title: "Swahili Basics Challenge",
+      description: "Complete 10 basic Swahili lessons in 7 days",
+      difficulty: "Beginner",
+      participants: 245,
+      duration: "7 days",
+      reward: "100 points",
+      status: "Active"
+    },
+    {
+      id: 2,
+      title: "Yoruba Pronunciation Master",
+      description: "Perfect your Yoruba pronunciation with daily exercises",
+      difficulty: "Intermediate",
+      participants: 89,
+      duration: "14 days",
+      reward: "250 points",
+      status: "Active"
+    },
+    {
+      id: 3,
+      title: "Amharic Writing Sprint",
+      description: "Learn to write 50 Amharic characters",
+      difficulty: "Advanced",
+      participants: 34,
+      duration: "21 days",
+      reward: "500 points",
+      status: "Draft"
+    }
+  ];
 
   const handleCreateChallenge = () => {
-    const newChallenge: Challenge = {
-      id: Date.now().toString(),
-      ...formData,
-      participants: 0,
-      status: 'Upcoming' as Challenge['status']
-    };
-    
-    setChallenges([...challenges, newChallenge]);
-    setFormData({
-      title: '',
-      description: '',
-      difficulty: 'Beginner',
-      points: 100,
-      timeLimit: 30,
-      category: ''
-    });
-    setShowCreateForm(false);
-    
     toast({
-      title: "Challenge Created",
-      description: "New challenge has been successfully created!",
+      title: "Create Challenge",
+      description: "Challenge creation form coming soon!",
     });
   };
 
-  const handleDeleteChallenge = (id: string) => {
-    setChallenges(challenges.filter(c => c.id !== id));
+  const handleEditChallenge = (id: number) => {
     toast({
-      title: "Challenge Deleted",
-      description: "Challenge has been removed successfully.",
+      title: "Edit Challenge",
+      description: `Editing challenge ${id}...`,
+    });
+  };
+
+  const handleDeleteChallenge = (id: number) => {
+    toast({
+      title: "Delete Challenge",
+      description: `Challenge ${id} deleted successfully!`,
       variant: "destructive",
     });
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Beginner': return 'text-green-600 bg-green-100';
-      case 'Intermediate': return 'text-yellow-600 bg-yellow-100';
-      case 'Advanced': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'Beginner': return 'bg-green-100 text-green-800';
+      case 'Intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'Advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active': return 'text-green-600 bg-green-100';
-      case 'Upcoming': return 'text-blue-600 bg-blue-100';
-      case 'Completed': return 'text-gray-600 bg-gray-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'Active': return 'bg-green-100 text-green-800';
+      case 'Draft': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-amber-900 flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg">
-                <Trophy className="h-6 w-6 text-white" />
-              </div>
-              Challenge Management
+              <Trophy className="h-8 w-8" />
+              Challenges Management
             </h1>
-            <p className="text-amber-700 mt-2">Create and manage interactive language challenges</p>
+            <p className="text-amber-700 mt-2">Create and manage learning challenges to motivate students</p>
           </div>
-          <Button 
-            onClick={() => setShowCreateForm(true)}
-            className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
-          >
+          <Button onClick={handleCreateChallenge} className="bg-amber-800 hover:bg-amber-900">
             <Plus className="h-4 w-4 mr-2" />
             Create Challenge
           </Button>
         </div>
 
-        {/* Statistics Cards */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200">
             <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-200 rounded-lg">
-                  <Trophy className="h-5 w-5 text-amber-700" />
-                </div>
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-amber-600">Total Challenges</p>
-                  <p className="text-2xl font-bold text-amber-900">{challenges.length}</p>
+                  <p className="text-green-600 text-sm font-medium">Active Challenges</p>
+                  <p className="text-2xl font-bold text-green-800">2</p>
                 </div>
+                <Trophy className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+          <Card className="bg-gradient-to-br from-blue-50 to-cyan-100 border-blue-200">
             <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-200 rounded-lg">
-                  <Users className="h-5 w-5 text-green-700" />
-                </div>
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-green-600">Active Participants</p>
-                  <p className="text-2xl font-bold text-green-900">
-                    {challenges.reduce((acc, c) => acc + c.participants, 0)}
-                  </p>
+                  <p className="text-blue-600 text-sm font-medium">Total Participants</p>
+                  <p className="text-2xl font-bold text-blue-800">368</p>
                 </div>
+                <Users className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-sky-50">
+          <Card className="bg-gradient-to-br from-purple-50 to-violet-100 border-purple-200">
             <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-200 rounded-lg">
-                  <Clock className="h-5 w-5 text-blue-700" />
-                </div>
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-600">Active Challenges</p>
-                  <p className="text-2xl font-bold text-blue-900">
-                    {challenges.filter(c => c.status === 'Active').length}
-                  </p>
+                  <p className="text-purple-600 text-sm font-medium">Completion Rate</p>
+                  <p className="text-2xl font-bold text-purple-800">78%</p>
                 </div>
+                <Target className="h-8 w-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50">
+          <Card className="bg-gradient-to-br from-orange-50 to-amber-100 border-orange-200">
             <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-200 rounded-lg">
-                  <Gift className="h-5 w-5 text-purple-700" />
-                </div>
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-purple-600">Total Rewards</p>
-                  <p className="text-2xl font-bold text-purple-900">
-                    {challenges.reduce((acc, c) => acc + c.points, 0)}
-                  </p>
+                  <p className="text-orange-600 text-sm font-medium">Avg Duration</p>
+                  <p className="text-2xl font-bold text-orange-800">14 days</p>
                 </div>
+                <Clock className="h-8 w-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Create Challenge Form */}
-        {showCreateForm && (
-          <Card className="border-amber-200 bg-white shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-amber-900">Create New Challenge</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="title" className="text-amber-900">Challenge Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    placeholder="Enter challenge title"
-                    className="border-amber-300 focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category" className="text-amber-900">Category</Label>
-                  <Input
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    placeholder="e.g., Grammar, Vocabulary, Culture"
-                    className="border-amber-300 focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="description" className="text-amber-900">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="Describe the challenge objectives and requirements"
-                  className="border-amber-300 focus:border-amber-500"
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="difficulty" className="text-amber-900">Difficulty</Label>
-                  <select
-                    id="difficulty"
-                    value={formData.difficulty}
-                    onChange={(e) => setFormData({...formData, difficulty: e.target.value as Challenge['difficulty']})}
-                    className="w-full h-10 px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                  >
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="points" className="text-amber-900">Points Reward</Label>
-                  <Input
-                    id="points"
-                    type="number"
-                    value={formData.points}
-                    onChange={(e) => setFormData({...formData, points: parseInt(e.target.value)})}
-                    className="border-amber-300 focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="timeLimit" className="text-amber-900">Time Limit (minutes)</Label>
-                  <Input
-                    id="timeLimit"
-                    type="number"
-                    value={formData.timeLimit}
-                    onChange={(e) => setFormData({...formData, timeLimit: parseInt(e.target.value)})}
-                    className="border-amber-300 focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button 
-                  onClick={handleCreateChallenge}
-                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
-                >
-                  Create Challenge
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowCreateForm(false)}
-                  className="border-amber-300 text-amber-700"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Challenges List */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid gap-6">
           {challenges.map((challenge) => (
-            <Card key={challenge.id} className="border-amber-200 bg-white shadow-lg hover:shadow-xl transition-shadow">
+            <Card key={challenge.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg text-amber-900 mb-2">{challenge.title}</CardTitle>
-                    <p className="text-sm text-amber-700">{challenge.description}</p>
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <CardTitle className="text-xl text-amber-900">{challenge.title}</CardTitle>
+                    <CardDescription className="text-amber-700">{challenge.description}</CardDescription>
                   </div>
                   <div className="flex gap-2">
                     <Button 
-                      size="icon" 
-                      variant="outline"
-                      className="border-amber-300 text-amber-700 h-8 w-8"
-                      onClick={() => setEditingChallenge(challenge)}
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEditChallenge(challenge.id)}
+                      className="border-amber-300 text-amber-700 hover:bg-amber-100"
                     >
-                      <Edit className="h-3 w-3" />
+                      <Edit className="h-4 w-4" />
                     </Button>
                     <Button 
-                      size="icon" 
-                      variant="outline"
-                      className="border-red-300 text-red-700 h-8 w-8"
+                      variant="outline" 
+                      size="sm"
                       onClick={() => handleDeleteChallenge(challenge.id)}
+                      className="border-red-300 text-red-700 hover:bg-red-100"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
+              <CardContent>
+                <div className="flex flex-wrap gap-4 items-center">
+                  <Badge className={getDifficultyColor(challenge.difficulty)}>
                     {challenge.difficulty}
-                  </span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(challenge.status)}`}>
+                  </Badge>
+                  <Badge className={getStatusColor(challenge.status)}>
                     {challenge.status}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-yellow-500" />
-                    <span className="text-amber-700">{challenge.points} points</span>
+                  </Badge>
+                  <div className="flex items-center gap-1 text-sm text-amber-700">
+                    <Users className="h-4 w-4" />
+                    {challenge.participants} participants
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-blue-500" />
-                    <span className="text-amber-700">{challenge.timeLimit}min</span>
+                  <div className="flex items-center gap-1 text-sm text-amber-700">
+                    <Clock className="h-4 w-4" />
+                    {challenge.duration}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-green-500" />
-                    <span className="text-amber-700">{challenge.participants} joined</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Trophy className="h-4 w-4 text-orange-500" />
-                    <span className="text-amber-700">{challenge.category}</span>
+                  <div className="flex items-center gap-1 text-sm text-amber-700">
+                    <Trophy className="h-4 w-4" />
+                    {challenge.reward}
                   </div>
                 </div>
-
-                <Button 
-                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
-                  onClick={() => toast({
-                    title: "Challenge Preview",
-                    description: `Viewing ${challenge.title} details...`,
-                  })}
-                >
-                  View Details
-                </Button>
               </CardContent>
             </Card>
           ))}
@@ -383,4 +209,6 @@ export default function ChallengesPage() {
       </div>
     </AdminLayout>
   );
-}
+};
+
+export default ChallengesPage;

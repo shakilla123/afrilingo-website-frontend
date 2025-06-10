@@ -10,6 +10,10 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CoursesPage from "./pages/admin/CoursesPage";
 import LessonsPage from "./pages/admin/LessonsPage";
 import QuizzesPage from "./pages/admin/QuizzesPage";
+import ChallengesPage from "./pages/admin/ChallengesPage";
+import ProfilePage from "./pages/admin/ProfilePage";
+import SettingsPage from "./pages/admin/SettingsPage";
+import NotificationsPage from "./pages/admin/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -35,10 +39,12 @@ const App = () => {
             <Route path="/admin/courses" element={<CoursesPage />} />
             <Route path="/admin/lessons" element={<LessonsPage />} />
             <Route path="/admin/quizzes" element={<QuizzesPage />} />
-            <Route path="/admin/challenges" element={<div className="p-8 text-center text-amber-900">Challenges page coming soon!</div>} />
+            <Route path="/admin/challenges" element={<ChallengesPage />} />
+            <Route path="/admin/profile" element={<ProfilePage />} />
+            <Route path="/admin/settings" element={<SettingsPage />} />
+            <Route path="/admin/notifications" element={<NotificationsPage />} />
             <Route path="/admin/users" element={<div className="p-8 text-center text-amber-900">Users page coming soon!</div>} />
             <Route path="/admin/analytics" element={<div className="p-8 text-center text-amber-900">Analytics page coming soon!</div>} />
-            <Route path="/admin/settings" element={<div className="p-8 text-center text-amber-900">Settings page coming soon!</div>} />
             {/* Course specific routes */}
             <Route path="/admin/courses/new" element={<div className="p-8 text-center text-amber-900">Create new course form coming soon!</div>} />
             <Route path="/admin/courses/:id" element={<div className="p-8 text-center text-amber-900">Course details coming soon!</div>} />
