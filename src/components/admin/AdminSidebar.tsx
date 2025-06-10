@@ -25,10 +25,10 @@ const menuItems = [
     color: "from-blue-500 to-blue-600"
   },
   {
-    title: "Courses",
+    title: "Kinyarwanda Courses",
     url: "/admin/courses",
     icon: Book,
-    description: "Language Courses",
+    description: "Rwanda Language",
     color: "from-green-500 to-green-600"
   },
   {
@@ -101,10 +101,10 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar className="bg-gradient-to-br from-white via-amber-50 to-orange-100 border-r border-amber-200/60 shadow-xl backdrop-blur-sm transition-all duration-300 ease-in-out w-64 md:w-72 lg:w-80">
+    <Sidebar className="bg-gradient-to-br from-white via-amber-50 to-orange-100 border-r border-amber-200/60 shadow-xl backdrop-blur-sm transition-all duration-300 ease-in-out">
       <SidebarHeader className="p-4 sm:p-6 border-b border-amber-200/40 bg-gradient-to-r from-amber-100/50 to-orange-100/30">
         <Link to="/" className="flex items-center gap-3 group hover:scale-[1.02] transition-all duration-300">
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl blur-sm opacity-30 group-hover:opacity-50 transition-opacity"></div>
             <img 
               src="/lovable-uploads/11afa540-f243-4c5a-93e4-f75f0daebf89.png" 
@@ -117,7 +117,7 @@ export function AdminSidebar() {
             <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-amber-800 to-orange-700 bg-clip-text text-transparent truncate">
               Afrilingo
             </h2>
-            <p className="text-xs sm:text-sm text-amber-600 font-medium">Admin Portal</p>
+            <p className="text-xs sm:text-sm text-amber-600 font-medium">Kinyarwanda Admin</p>
           </div>
         </Link>
       </SidebarHeader>
@@ -126,7 +126,7 @@ export function AdminSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="text-amber-700 font-bold px-4 py-3 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
             <div className="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full animate-pulse"></div>
-            <span>Management Hub</span>
+            <span>Kinyarwanda Hub</span>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2">
@@ -144,24 +144,24 @@ export function AdminSidebar() {
                         }
                       `}
                     >
-                      <Link to={item.url} className="flex items-center gap-4 px-4 py-3 w-full min-h-[3.5rem]">
+                      <Link to={item.url} className="flex items-center gap-3 px-3 py-3 w-full min-h-[3rem]">
                         <div className={`
-                          p-2.5 rounded-lg transition-all duration-300 backdrop-blur-sm flex-shrink-0
+                          p-2 rounded-lg transition-all duration-300 backdrop-blur-sm flex-shrink-0
                           ${isActive 
                             ? 'bg-white/20 shadow-lg' 
                             : 'bg-white/60 group-hover:bg-white/80 shadow-sm'
                           }
                         `}>
-                          <item.icon className="h-5 w-5" />
+                          <item.icon className="h-4 w-4" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-sm truncate">{item.title}</div>
-                          <div className={`text-xs transition-colors truncate ${isActive ? 'text-white/80' : 'text-amber-600/80 group-hover:text-amber-700'}`}>
+                          <div className={`text-xs transition-colors truncate mt-0.5 ${isActive ? 'text-white/80' : 'text-amber-600/80 group-hover:text-amber-700'}`}>
                             {item.description}
                           </div>
                         </div>
                         {isActive && (
-                          <div className="w-1 h-8 bg-white/60 rounded-full shadow-sm flex-shrink-0"></div>
+                          <div className="w-1 h-6 bg-white/60 rounded-full shadow-sm flex-shrink-0"></div>
                         )}
                       </Link>
                     </SidebarMenuButton>
@@ -187,7 +187,7 @@ export function AdminSidebar() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-amber-900 group-hover:text-amber-800 transition-colors truncate">Admin User</p>
-              <p className="text-xs text-amber-700/80 truncate">admin@afrilingo.com</p>
+              <p className="text-xs text-amber-700/80 truncate">Kinyarwanda Specialist</p>
             </div>
             <div className="w-2 h-2 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0"></div>
           </button>
