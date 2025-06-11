@@ -71,13 +71,6 @@ export default function CoursesPage() {
     });
   };
 
-  const handleCreateCourse = () => {
-    toast({
-      title: "Create Course",
-      description: "Opening course creation form...",
-    });
-  };
-
   const handleEditCourse = (courseId: number, title: string) => {
     toast({
       title: "Edit Course",
@@ -116,13 +109,12 @@ export default function CoursesPage() {
             <h1 className="text-3xl font-bold text-amber-900">Courses</h1>
             <p className="text-amber-700">Manage your language courses</p>
           </div>
-          <Button 
-            className="bg-amber-600 hover:bg-amber-700 text-white"
-            onClick={handleCreateCourse}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Course
-          </Button>
+          <Link to="/admin/courses/new">
+            <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Course
+            </Button>
+          </Link>
         </div>
 
         {/* Search and Filters */}

@@ -15,6 +15,10 @@ import ProfilePage from "./pages/admin/ProfilePage";
 import SettingsPage from "./pages/admin/SettingsPage";
 import NotificationsPage from "./pages/admin/NotificationsPage";
 import UsersPage from "./pages/admin/UsersPage";
+import CreateCoursePage from "./pages/admin/CreateCoursePage";
+import CreateLessonPage from "./pages/admin/CreateLessonPage";
+import CreateQuizPage from "./pages/admin/CreateQuizPage";
+import CreateChallengePage from "./pages/admin/CreateChallengePage";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -38,15 +42,18 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/courses" element={<CoursesPage />} />
+            <Route path="/admin/courses/new" element={<CreateCoursePage />} />
             <Route path="/admin/lessons" element={<LessonsPage />} />
+            <Route path="/admin/lessons/new" element={<CreateLessonPage />} />
             <Route path="/admin/quizzes" element={<QuizzesPage />} />
+            <Route path="/admin/quizzes/new" element={<CreateQuizPage />} />
             <Route path="/admin/challenges" element={<ChallengesPage />} />
+            <Route path="/admin/challenges/new" element={<CreateChallengePage />} />
             <Route path="/admin/profile" element={<ProfilePage />} />
             <Route path="/admin/settings" element={<SettingsPage />} />
             <Route path="/admin/notifications" element={<NotificationsPage />} />
             <Route path="/admin/users" element={<UsersPage />} />
             {/* Course specific routes */}
-            <Route path="/admin/courses/new" element={<div className="p-8 text-center text-amber-900">Create new course form coming soon!</div>} />
             <Route path="/admin/courses/:id" element={<div className="p-8 text-center text-amber-900">Course details coming soon!</div>} />
             <Route path="/admin/courses/:id/edit" element={<div className="p-8 text-center text-amber-900">Edit course form coming soon!</div>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

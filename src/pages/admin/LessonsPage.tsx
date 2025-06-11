@@ -4,7 +4,8 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { BookOpen, Clock, Users, Play, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { BookOpen, Clock, Users, Play, Edit, Trash2, Search, Filter, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 const lessons = [
@@ -19,13 +20,6 @@ const lessons = [
 export default function LessonsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
-
-  const handleCreateLesson = () => {
-    toast({
-      title: "Create Lesson",
-      description: "Opening lesson creation form...",
-    });
-  };
 
   const handlePreviewLesson = (lessonId: number, title: string) => {
     toast({
@@ -72,13 +66,12 @@ export default function LessonsPage() {
             <h1 className="text-3xl font-bold text-amber-900">Lessons</h1>
             <p className="text-amber-700">Create and manage lesson content</p>
           </div>
-          <Button 
-            className="bg-amber-600 hover:bg-amber-700 text-white"
-            onClick={handleCreateLesson}
-          >
-            <BookOpen className="h-4 w-4 mr-2" />
-            Create Lesson
-          </Button>
+          <Link to="/admin/lessons/new">
+            <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Lesson
+            </Button>
+          </Link>
         </div>
 
         {/* Search and Filters */}
@@ -143,6 +136,7 @@ export default function LessonsPage() {
                       <span>{lesson.students} students</span>
                     </div>
                   </div>
+                  
                   <div className="flex gap-2">
                     <Button 
                       variant="outline" 
