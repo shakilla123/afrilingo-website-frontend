@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { List, CheckCircle, Users, BarChart, Edit, Trash2, Search, Filter, Eye } from 'lucide-react';
+import { List } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { QuizCard } from '@/components/admin/quizzes/QuizCard';
+import { SearchFilter } from '@/components/admin/shared/SearchFilter';
 
 const quizzes = [
   { id: 1, title: "Swahili Basics Quiz", questions: 20, attempts: 156, avgScore: 78, status: "Published" },
@@ -88,116 +88,24 @@ export default function QuizzesPage() {
           </Button>
         </div>
 
-        {/* Search and Filters */}
-        <Card className="border-amber-200">
-          <CardContent className="p-6">
-            <form onSubmit={handleSearch} className="flex gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
-                <Input 
-                  placeholder="Search quizzes..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-amber-300 focus:border-amber-500"
-                />
-              </div>
-              <Button 
-                type="submit"
-                variant="outline" 
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-              >
-                Search
-              </Button>
-              <Button 
-                type="button"
-                variant="outline" 
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                onClick={handleFilter}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <SearchFilter
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onSearch={handleSearch}
+          onFilter={handleFilter}
+          placeholder="Search quizzes..."
+        />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quizzes.map((quiz) => (
-            <Card key={quiz.id} className="border-amber-200 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-amber-900 flex-1 min-w-0">
-                    <span className="truncate">{quiz.title}</span>
-                  </CardTitle>
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${
-                    quiz.status === 'Published' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {quiz.status}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-xl font-bold text-amber-900">{quiz.questions}</div>
-                      <div className="text-xs text-amber-600">Questions</div>
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold text-amber-900">{quiz.attempts}</div>
-                      <div className="text-xs text-amber-600">Attempts</div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-900">{quiz.avgScore}%</div>
-                    <div className="text-xs text-amber-600">Average Score</div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
-                      onClick={() => handleViewQuiz(quiz.id, quiz.title)}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
-                      onClick={() => handleViewResults(quiz.id, quiz.title)}
-                    >
-                      <BarChart className="h-4 w-4 mr-2" />
-                      Results
-                    </Button>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
-                      onClick={() => handleEditQuiz(quiz.id, quiz.title)}
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="border-red-300 text-red-700 hover:bg-red-100"
-                      onClick={() => handleDeleteQuiz(quiz.id, quiz.title)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <QuizCard
+              key={quiz.id}
+              quiz={quiz}
+              onViewQuiz={handleViewQuiz}
+              onViewResults={handleViewResults}
+              onEditQuiz={handleEditQuiz}
+              onDeleteQuiz={handleDeleteQuiz}
+            />
           ))}
         </div>
       </div>
