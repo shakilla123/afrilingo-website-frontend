@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, Book, Settings, User, Search, List, Users, BarChart3, BookOpen, Trophy, Bell } from 'lucide-react';
+import { LayoutDashboard, Book, Settings, User, Search, List, Users, BookOpen, Trophy, Bell } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -58,13 +58,6 @@ const menuItems = [
     icon: Users,
     description: "User Management",
     color: "from-indigo-500 to-indigo-600"
-  },
-  {
-    title: "Analytics",
-    url: "/admin/analytics",
-    icon: BarChart3,
-    description: "Statistics",
-    color: "from-pink-500 to-pink-600"
   },
   {
     title: "Profile",
