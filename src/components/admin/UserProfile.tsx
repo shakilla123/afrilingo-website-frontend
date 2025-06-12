@@ -5,9 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { User, Mail, Phone, MapPin, Calendar, Settings, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export function UserProfile() {
   const { toast } = useToast();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const user = {
     name: "Admin User",
@@ -27,10 +31,11 @@ export function UserProfile() {
   };
 
   const handleLogout = () => {
+    logout();
+    navigate('/');
     toast({
-      title: "Logout",
-      description: "Logging out...",
-      variant: "destructive",
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
     });
   };
 
