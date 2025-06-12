@@ -56,13 +56,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (firstname: string, lastname: string, email: string, password: string) => {
     try {
+      // All users are automatically registered as admins
       await authService.register({
         firstname,
         lastname,
         email,
         password,
-        role: 'ROLE_ADMIN', // Default to admin role
+        role: 'ROLE_ADMIN', // Every user gets admin privileges by default
       });
+      console.log('User registered with admin privileges');
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
