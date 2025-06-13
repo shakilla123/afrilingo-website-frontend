@@ -27,38 +27,31 @@ export interface CreateLessonRequest {
 
 export const lessonService = {
   async getAll(): Promise<Lesson[]> {
-    const response = await httpClient.get('/lessons');
-    return response.json();
+    return await httpClient.get('/lessons');
   },
 
   async getById(id: number): Promise<Lesson> {
-    const response = await httpClient.get(`/lessons/${id}`);
-    return response.json();
+    return await httpClient.get(`/lessons/${id}`);
   },
 
   async getByCourseId(courseId: number): Promise<Lesson[]> {
-    const response = await httpClient.get(`/lessons/course/${courseId}`);
-    return response.json();
+    return await httpClient.get(`/lessons/course/${courseId}`);
   },
 
   async getOrderedByCourseId(courseId: number): Promise<Lesson[]> {
-    const response = await httpClient.get(`/lessons/course/${courseId}/ordered`);
-    return response.json();
+    return await httpClient.get(`/lessons/course/${courseId}/ordered`);
   },
 
   async getByType(lessonType: string): Promise<Lesson[]> {
-    const response = await httpClient.get(`/lessons/type/${lessonType}`);
-    return response.json();
+    return await httpClient.get(`/lessons/type/${lessonType}`);
   },
 
   async create(data: CreateLessonRequest): Promise<Lesson> {
-    const response = await httpClient.post('/lessons', data);
-    return response.json();
+    return await httpClient.post('/lessons', data);
   },
 
   async update(id: number, data: Partial<CreateLessonRequest>): Promise<Lesson> {
-    const response = await httpClient.put(`/lessons/${id}`, data);
-    return response.json();
+    return await httpClient.put(`/lessons/${id}`, data);
   },
 
   async delete(id: number): Promise<void> {

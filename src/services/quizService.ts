@@ -29,28 +29,23 @@ export interface QuizStatistics {
 
 export const quizService = {
   async getAll(): Promise<Quiz[]> {
-    const response = await httpClient.get('/quizzes');
-    return response.json();
+    return await httpClient.get('/quizzes');
   },
 
   async getById(id: number): Promise<Quiz> {
-    const response = await httpClient.get(`/quizzes/${id}`);
-    return response.json();
+    return await httpClient.get(`/quizzes/${id}`);
   },
 
   async getByLessonId(lessonId: number): Promise<Quiz[]> {
-    const response = await httpClient.get(`/quizzes/lesson/${lessonId}`);
-    return response.json();
+    return await httpClient.get(`/quizzes/lesson/${lessonId}`);
   },
 
   async create(data: CreateQuizRequest): Promise<Quiz> {
-    const response = await httpClient.post('/quizzes', data);
-    return response.json();
+    return await httpClient.post('/quizzes', data);
   },
 
   async update(id: number, data: Partial<CreateQuizRequest>): Promise<Quiz> {
-    const response = await httpClient.put(`/quizzes/${id}`, data);
-    return response.json();
+    return await httpClient.put(`/quizzes/${id}`, data);
   },
 
   async delete(id: number): Promise<void> {
@@ -58,17 +53,14 @@ export const quizService = {
   },
 
   async getQuestions(id: number): Promise<any[]> {
-    const response = await httpClient.get(`/quizzes/${id}/questions`);
-    return response.json();
+    return await httpClient.get(`/quizzes/${id}/questions`);
   },
 
   async addQuestion(id: number, questionData: any): Promise<any> {
-    const response = await httpClient.post(`/quizzes/${id}/questions`, questionData);
-    return response.json();
+    return await httpClient.post(`/quizzes/${id}/questions`, questionData);
   },
 
   async getStatistics(id: number): Promise<QuizStatistics> {
-    const response = await httpClient.get(`/quizzes/${id}/statistics`);
-    return response.json();
+    return await httpClient.get(`/quizzes/${id}/statistics`);
   },
 };

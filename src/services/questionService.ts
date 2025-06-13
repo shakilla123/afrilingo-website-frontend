@@ -30,28 +30,23 @@ export interface CreateQuestionOptionRequest {
 
 export const questionService = {
   async getAll(): Promise<Question[]> {
-    const response = await httpClient.get('/questions');
-    return response.json();
+    return await httpClient.get('/questions');
   },
 
   async getById(id: number): Promise<Question> {
-    const response = await httpClient.get(`/questions/${id}`);
-    return response.json();
+    return await httpClient.get(`/questions/${id}`);
   },
 
   async getOptions(id: number): Promise<QuestionOption[]> {
-    const response = await httpClient.get(`/questions/${id}/options`);
-    return response.json();
+    return await httpClient.get(`/questions/${id}/options`);
   },
 
   async create(data: CreateQuestionRequest): Promise<Question> {
-    const response = await httpClient.post('/questions', data);
-    return response.json();
+    return await httpClient.post('/questions', data);
   },
 
   async update(id: number, data: Partial<CreateQuestionRequest>): Promise<Question> {
-    const response = await httpClient.put(`/questions/${id}`, data);
-    return response.json();
+    return await httpClient.put(`/questions/${id}`, data);
   },
 
   async delete(id: number): Promise<void> {
@@ -59,7 +54,6 @@ export const questionService = {
   },
 
   async addOption(id: number, optionData: CreateQuestionOptionRequest): Promise<QuestionOption> {
-    const response = await httpClient.post(`/questions/${id}/options`, optionData);
-    return response.json();
+    return await httpClient.post(`/questions/${id}/options`, optionData);
   },
 };

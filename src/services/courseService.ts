@@ -25,38 +25,31 @@ export interface CreateCourseRequest {
 
 export const courseService = {
   async getAll(): Promise<Course[]> {
-    const response = await httpClient.get('/courses');
-    return response.json();
+    return await httpClient.get('/courses');
   },
 
   async getById(id: number): Promise<Course> {
-    const response = await httpClient.get(`/courses/${id}`);
-    return response.json();
+    return await httpClient.get(`/courses/${id}`);
   },
 
   async getByLanguageId(languageId: number): Promise<Course[]> {
-    const response = await httpClient.get(`/courses/language/${languageId}`);
-    return response.json();
+    return await httpClient.get(`/courses/language/${languageId}`);
   },
 
   async getActiveByLanguageId(languageId: number): Promise<Course[]> {
-    const response = await httpClient.get(`/courses/language/${languageId}/active`);
-    return response.json();
+    return await httpClient.get(`/courses/language/${languageId}/active`);
   },
 
   async create(data: CreateCourseRequest): Promise<Course> {
-    const response = await httpClient.post('/courses', data);
-    return response.json();
+    return await httpClient.post('/courses', data);
   },
 
   async update(id: number, data: Partial<CreateCourseRequest>): Promise<Course> {
-    const response = await httpClient.put(`/courses/${id}`, data);
-    return response.json();
+    return await httpClient.put(`/courses/${id}`, data);
   },
 
   async setActivation(id: number, isActive: boolean): Promise<Course> {
-    const response = await httpClient.patch(`/courses/${id}/activation`, { isActive });
-    return response.json();
+    return await httpClient.patch(`/courses/${id}/activation`, { isActive });
   },
 
   async delete(id: number): Promise<void> {
