@@ -33,9 +33,21 @@ export default function CreateCoursePage() {
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: languages = [], isLoading: languagesLoading } = useQuery({
+  console.log('CreateCoursePage: Component rendered');
+
+  const { data: languages = [], isLoading: languagesLoading, error: languagesError } = useQuery({
     queryKey: ['languages'],
-    queryFn: languageService.getAll,
+    queryFn: async () => {
+      console.log('CreateCoursePage: Fetching languages...');
+      try {
+        const result = await languageService.getAll();
+        console.log('CreateCoursePage: Languages fetched successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('CreateCoursePage: Error fetching languages:', error);
+        throw error;
+      }
+    },
   });
 
   const form = useForm<CourseFormData>({
@@ -49,6 +61,7 @@ export default function CreateCoursePage() {
   });
 
   const onSubmit = async (data: CourseFormData) => {
+    console.log('CreateCoursePage: Form submitted with data:', data);
     setIsSubmitting(true);
     
     try {
@@ -63,7 +76,9 @@ export default function CreateCoursePage() {
         },
       };
 
-      await courseService.create(courseData);
+      console.log('CreateCoursePage: Sending course creation request:', courseData);
+      const result = await courseService.create(courseData);
+      console.log('CreateCoursePage: Course created successfully:', result);
       
       // Invalidate courses query to refresh the list
       queryClient.invalidateQueries({ queryKey: ['courses'] });
@@ -75,7 +90,7 @@ export default function CreateCoursePage() {
       
       navigate('/admin/courses');
     } catch (error) {
-      console.error('Failed to create course:', error);
+      console.error('CreateCoursePage: Failed to create course:', error);
       toast({
         title: "Failed to Create Course",
         description: "There was an error creating the course. Please try again.",
@@ -87,6 +102,30 @@ export default function CreateCoursePage() {
   };
 
   const selectedLanguage = languages.find(lang => lang.id === parseInt(form.watch('languageId')));
+
+  console.log('CreateCoursePage: Current state:', {
+    languagesLoading,
+    languagesError,
+    languagesCount: languages.length,
+    selectedLanguage,
+    isSubmitting
+  });
+
+  if (languagesError) {
+    console.error('CreateCoursePage: Languages error:', languagesError);
+    return (
+      <FormLayout
+        title="Create New Course"
+        description="Set up a new language course for your students"
+        backUrl="/admin/courses"
+      >
+        <div className="text-center text-red-600 p-8">
+          <p>Failed to load languages. Please try again.</p>
+          <p className="text-sm mt-2">Check the console for more details.</p>
+        </div>
+      </FormLayout>
+    );
+  }
 
   return (
     <FormLayout
