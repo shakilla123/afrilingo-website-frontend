@@ -8,7 +8,7 @@ import { QuizCard } from '@/components/admin/quizzes/QuizCard';
 import { SearchFilter } from '@/components/admin/shared/SearchFilter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { quizService, Quiz } from '@/services/quizService';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function QuizzesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,11 +56,8 @@ export default function QuizzesPage() {
     }
   };
 
-  const handleViewQuiz = (quizId: number, title: string) => {
-    toast({
-      title: "View Quiz",
-      description: `Opening "${title}" preview`,
-    });
+  const handleViewQuiz = (quizId: number) => {
+    navigate(`/admin/quizzes/${quizId}/view`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -141,7 +138,7 @@ export default function QuizzesPage() {
             <QuizCard
               key={quiz.id}
               quiz={quiz}
-              onViewQuiz={handleViewQuiz}
+              onViewQuiz={() => handleViewQuiz(quiz.id)}
               onViewResults={handleViewResults}
               onEditQuiz={handleEditQuiz}
               onDeleteQuiz={handleDeleteQuiz}

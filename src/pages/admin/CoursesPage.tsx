@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { courseService, Course } from '@/services/courseService';
@@ -13,6 +13,7 @@ import { courseService, Course } from '@/services/courseService';
 export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: courses = [], isLoading, error } = useQuery({
@@ -52,11 +53,8 @@ export default function CoursesPage() {
     }
   };
 
-  const handleViewCourse = (courseId: number, title: string) => {
-    toast({
-      title: "View Course",
-      description: `Opening "${title}" details - Preview functionality coming soon`,
-    });
+  const handleViewCourse = (courseId: number) => {
+    navigate(`/admin/courses/${courseId}/view`);
   };
 
   const handleFilter = () => {
@@ -170,7 +168,7 @@ export default function CoursesPage() {
                       variant="outline" 
                       size="sm" 
                       className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
-                      onClick={() => handleViewCourse(course.id, course.title)}
+                      onClick={() => handleViewCourse(course.id)}
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       View
