@@ -3,68 +3,90 @@ import React, { useState } from 'react';
 import { FormLayout } from '@/components/admin/FormLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Book, Upload } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Book } from 'lucide-react';
+import { languageService } from '@/services/languageService';
+import { courseService, CreateCourseRequest } from '@/services/courseService';
 
 interface CourseFormData {
   title: string;
-  language: string;
+  languageId: string;
   level: string;
   description: string;
-  flag: string;
+  image: string;
 }
 
-const languages = [
-  { value: 'swahili', label: 'Swahili', flag: '🇹🇿' },
-  { value: 'yoruba', label: 'Yoruba', flag: '🇳🇬' },
-  { value: 'amharic', label: 'Amharic', flag: '🇪🇹' },
-  { value: 'zulu', label: 'Zulu', flag: '🇿🇦' },
-  { value: 'kinyarwanda', label: 'Kinyarwanda', flag: '🇷🇼' },
-  { value: 'hausa', label: 'Hausa', flag: '🇳🇬' },
-];
-
 const levels = [
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'advanced', label: 'Advanced' },
+  { value: 'Beginner', label: 'Beginner' },
+  { value: 'Intermediate', label: 'Intermediate' },
+  { value: 'Advanced', label: 'Advanced' },
 ];
 
 export default function CreateCoursePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: languages = [], isLoading: languagesLoading } = useQuery({
+    queryKey: ['languages'],
+    queryFn: languageService.getAll,
+  });
 
   const form = useForm<CourseFormData>({
     defaultValues: {
       title: '',
-      language: '',
+      languageId: '',
       level: '',
       description: '',
-      flag: '',
+      image: '',
     },
   });
 
   const onSubmit = async (data: CourseFormData) => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Course Created Successfully!",
-      description: `"${data.title}" has been created and is ready for lessons.`,
-    });
-    
-    setIsSubmitting(false);
-    navigate('/admin/courses');
+    try {
+      const courseData: CreateCourseRequest = {
+        title: data.title,
+        description: data.description,
+        level: data.level,
+        image: data.image || 'default-course.jpg',
+        isActive: true,
+        language: {
+          id: parseInt(data.languageId),
+        },
+      };
+
+      await courseService.create(courseData);
+      
+      // Invalidate courses query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      
+      toast({
+        title: "Course Created Successfully!",
+        description: `"${data.title}" has been created and is ready for lessons.`,
+      });
+      
+      navigate('/admin/courses');
+    } catch (error) {
+      console.error('Failed to create course:', error);
+      toast({
+        title: "Failed to Create Course",
+        description: "There was an error creating the course. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const selectedLanguage = languages.find(lang => lang.value === form.watch('language'));
+  const selectedLanguage = languages.find(lang => lang.id === parseInt(form.watch('languageId')));
 
   return (
     <FormLayout
@@ -96,29 +118,23 @@ export default function CreateCoursePage() {
 
             <FormField
               control={form.control}
-              name="language"
+              name="languageId"
               rules={{ required: "Please select a language" }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Language</FormLabel>
-                  <Select onValueChange={(value) => {
-                    field.onChange(value);
-                    const lang = languages.find(l => l.value === value);
-                    if (lang) {
-                      form.setValue('flag', lang.flag);
-                    }
-                  }}>
+                  <Select onValueChange={field.onChange} disabled={languagesLoading}>
                     <FormControl>
                       <SelectTrigger className="border-amber-300 focus:border-amber-500">
-                        <SelectValue placeholder="Select language" />
+                        <SelectValue placeholder={languagesLoading ? "Loading languages..." : "Select language"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {languages.map((language) => (
-                        <SelectItem key={language.value} value={language.value}>
+                        <SelectItem key={language.id} value={language.id.toString()}>
                           <div className="flex items-center gap-2">
-                            <span>{language.flag}</span>
-                            <span>{language.label}</span>
+                            <span>🌍</span>
+                            <span>{language.name}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -155,15 +171,23 @@ export default function CreateCoursePage() {
               )}
             />
 
-            <div className="flex items-center gap-4">
-              <div className="text-4xl">
-                {selectedLanguage?.flag || '🌍'}
-              </div>
-              <div>
-                <Label className="text-sm text-amber-600">Course Flag</Label>
-                <p className="text-xs text-amber-500">Auto-selected based on language</p>
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Course Image (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="e.g., course-image.jpg" 
+                      className="border-amber-300 focus:border-amber-500"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           <FormField
@@ -184,6 +208,19 @@ export default function CreateCoursePage() {
               </FormItem>
             )}
           />
+
+          {selectedLanguage && (
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <h3 className="font-medium text-amber-900 mb-2">Selected Language</h3>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🌍</span>
+                <div>
+                  <p className="font-medium text-amber-800">{selectedLanguage.name}</p>
+                  <p className="text-sm text-amber-600">{selectedLanguage.description}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end gap-4 pt-6 border-t border-amber-200">
             <Button 

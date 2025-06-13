@@ -7,61 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Book, Search, Plus, Users, Star, Edit, Trash2, Eye, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-
-const courses = [
-  {
-    id: 1,
-    title: "Swahili Basics",
-    language: "Swahili",
-    level: "Beginner",
-    students: 1248,
-    lessons: 24,
-    rating: 4.8,
-    status: "Published",
-    flag: "🇹🇿",
-    createdAt: "2024-01-15"
-  },
-  {
-    id: 2,
-    title: "Yoruba Fundamentals",
-    language: "Yoruba",
-    level: "Beginner",
-    students: 892,
-    lessons: 18,
-    rating: 4.7,
-    status: "Published",
-    flag: "🇳🇬",
-    createdAt: "2024-02-01"
-  },
-  {
-    id: 3,
-    title: "Amharic Expressions",
-    language: "Amharic",
-    level: "Intermediate",
-    students: 634,
-    lessons: 32,
-    rating: 4.9,
-    status: "Published",
-    flag: "🇪🇹",
-    createdAt: "2024-02-10"
-  },
-  {
-    id: 4,
-    title: "Zulu Conversations",
-    language: "Zulu",
-    level: "Advanced",
-    students: 567,
-    lessons: 28,
-    rating: 4.6,
-    status: "Draft",
-    flag: "🇿🇦",
-    createdAt: "2024-03-01"
-  }
-];
+import { useQuery } from '@tanstack/react-query';
+import { courseService, Course } from '@/services/courseService';
 
 export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+
+  const { data: courses = [], isLoading, error } = useQuery({
+    queryKey: ['courses'],
+    queryFn: courseService.getAll,
+  });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,12 +34,20 @@ export default function CoursesPage() {
     });
   };
 
-  const handleDeleteCourse = (courseId: number, title: string) => {
-    toast({
-      title: "Delete Course",
-      description: `Are you sure you want to delete "${title}"?`,
-      variant: "destructive",
-    });
+  const handleDeleteCourse = async (courseId: number, title: string) => {
+    try {
+      await courseService.delete(courseId);
+      toast({
+        title: "Course Deleted",
+        description: `"${title}" has been deleted successfully.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Delete Failed",
+        description: `Failed to delete "${title}". Please try again.`,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleViewCourse = (courseId: number, title: string) => {
@@ -99,6 +63,29 @@ export default function CoursesPage() {
       description: "Opening filter options...",
     });
   };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto"></div>
+            <p className="mt-2 text-amber-700">Loading courses...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="text-center text-red-600 p-8">
+          <p>Failed to load courses. Please try again.</p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -152,45 +139,29 @@ export default function CoursesPage() {
 
         {/* Courses Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
+          {courses.map((course: Course) => (
             <Card key={course.id} className="border-amber-200 hover:shadow-lg transition-shadow">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="text-3xl">{course.flag}</div>
+                    <div className="text-3xl">🌍</div>
                     <div className="min-w-0 flex-1">
                       <CardTitle className="text-lg text-amber-900 truncate">{course.title}</CardTitle>
-                      <p className="text-sm text-amber-600">{course.language} • {course.level}</p>
+                      <p className="text-sm text-amber-600">{course.language.name} • {course.level}</p>
                     </div>
                   </div>
                   <div className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
-                    course.status === 'Published' 
+                    course.isActive 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {course.status}
+                    {course.isActive ? 'Published' : 'Draft'}
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-amber-900">{course.students}</div>
-                      <div className="text-xs text-amber-600">Students</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-amber-900">{course.lessons}</div>
-                      <div className="text-xs text-amber-600">Lessons</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-amber-900 flex items-center justify-center gap-1">
-                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        {course.rating}
-                      </div>
-                      <div className="text-xs text-amber-600">Rating</div>
-                    </div>
-                  </div>
+                  <p className="text-sm text-amber-700 line-clamp-2">{course.description}</p>
                   
                   <div className="flex gap-2">
                     <Button 
@@ -225,6 +196,20 @@ export default function CoursesPage() {
             </Card>
           ))}
         </div>
+
+        {courses.length === 0 && (
+          <div className="text-center py-12">
+            <Book className="h-12 w-12 text-amber-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-amber-900 mb-2">No courses yet</h3>
+            <p className="text-amber-600 mb-6">Get started by creating your first course.</p>
+            <Link to="/admin/courses/new">
+              <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Course
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

@@ -6,19 +6,17 @@ import { List } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { QuizCard } from '@/components/admin/quizzes/QuizCard';
 import { SearchFilter } from '@/components/admin/shared/SearchFilter';
-
-const quizzes = [
-  { id: 1, title: "Swahili Basics Quiz", questions: 20, attempts: 156, avgScore: 78, status: "Published" },
-  { id: 2, title: "Yoruba Greetings", questions: 15, attempts: 89, avgScore: 82, status: "Published" },
-  { id: 3, title: "Amharic Numbers", questions: 25, attempts: 234, avgScore: 75, status: "Published" },
-  { id: 4, title: "Zulu Vocabulary", questions: 18, attempts: 67, avgScore: 85, status: "Draft" },
-  { id: 5, title: "Hausa Phrases", questions: 22, attempts: 123, avgScore: 71, status: "Published" },
-  { id: 6, title: "Igbo Grammar", questions: 30, attempts: 45, avgScore: 68, status: "Draft" },
-];
+import { useQuery } from '@tanstack/react-query';
+import { quizService, Quiz } from '@/services/quizService';
 
 export default function QuizzesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+
+  const { data: quizzes = [], isLoading, error } = useQuery({
+    queryKey: ['quizzes'],
+    queryFn: quizService.getAll,
+  });
 
   const handleCreateQuiz = () => {
     toast({
@@ -41,12 +39,20 @@ export default function QuizzesPage() {
     });
   };
 
-  const handleDeleteQuiz = (quizId: number, title: string) => {
-    toast({
-      title: "Delete Quiz",
-      description: `Are you sure you want to delete "${title}"?`,
-      variant: "destructive",
-    });
+  const handleDeleteQuiz = async (quizId: number, title: string) => {
+    try {
+      await quizService.delete(quizId);
+      toast({
+        title: "Quiz Deleted",
+        description: `"${title}" has been deleted successfully.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Delete Failed",
+        description: `Failed to delete "${title}". Please try again.`,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleViewQuiz = (quizId: number, title: string) => {
@@ -70,6 +76,39 @@ export default function QuizzesPage() {
       description: "Opening filter options...",
     });
   };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto"></div>
+            <p className="mt-2 text-amber-700">Loading quizzes...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="text-center text-red-600 p-8">
+          <p>Failed to load quizzes. Please try again.</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Transform quiz data to match the expected format for QuizCard
+  const transformedQuizzes = quizzes.map((quiz: Quiz) => ({
+    id: quiz.id,
+    title: quiz.title,
+    questions: 0, // Will need to fetch this separately or include in API
+    attempts: 0, // Will need to fetch from statistics
+    avgScore: 0, // Will need to fetch from statistics
+    status: "Published" // Default status
+  }));
 
   return (
     <AdminLayout>
@@ -97,7 +136,7 @@ export default function QuizzesPage() {
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {quizzes.map((quiz) => (
+          {transformedQuizzes.map((quiz) => (
             <QuizCard
               key={quiz.id}
               quiz={quiz}
@@ -108,6 +147,21 @@ export default function QuizzesPage() {
             />
           ))}
         </div>
+
+        {quizzes.length === 0 && (
+          <div className="text-center py-12">
+            <List className="h-12 w-12 text-amber-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-amber-900 mb-2">No quizzes yet</h3>
+            <p className="text-amber-600 mb-6">Get started by creating your first quiz.</p>
+            <Button 
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={handleCreateQuiz}
+            >
+              <List className="h-4 w-4 mr-2" />
+              Create Quiz
+            </Button>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
