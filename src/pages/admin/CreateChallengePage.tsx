@@ -9,11 +9,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, Plus, Trash2, Star } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Trophy, Plus, Trash2 } from 'lucide-react';
+import { courseService } from '@/services/courseService';
 
 interface ChallengeFormData {
   title: string;
-  course: string;
+  courseId: string;
   difficulty: string;
   points: string;
   timeLimit: string;
@@ -21,13 +23,6 @@ interface ChallengeFormData {
   requirements: string[];
   rewards: string[];
 }
-
-const courses = [
-  { value: 'swahili-basics', label: 'Swahili Basics' },
-  { value: 'yoruba-fundamentals', label: 'Yoruba Fundamentals' },
-  { value: 'amharic-expressions', label: 'Amharic Expressions' },
-  { value: 'zulu-conversations', label: 'Zulu Conversations' },
-];
 
 const difficulties = [
   { value: 'easy', label: 'Easy', color: 'text-green-600' },
@@ -42,10 +37,15 @@ export default function CreateChallengePage() {
   const [requirements, setRequirements] = useState<string[]>(['']);
   const [rewards, setRewards] = useState<string[]>(['']);
 
+  const { data: courses = [], isLoading: coursesLoading } = useQuery({
+    queryKey: ['courses'],
+    queryFn: courseService.getAll,
+  });
+
   const form = useForm<ChallengeFormData>({
     defaultValues: {
       title: '',
-      course: '',
+      courseId: '',
       difficulty: '',
       points: '',
       timeLimit: '',
@@ -92,7 +92,7 @@ export default function CreateChallengePage() {
       rewards: rewards.filter(item => item.trim() !== ''),
     };
     
-    // Simulate API call
+    // Simulate API call for now (challenge service not implemented yet)
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     toast({
@@ -103,6 +103,8 @@ export default function CreateChallengePage() {
     setIsSubmitting(false);
     navigate('/admin/challenges');
   };
+
+  const selectedCourse = courses.find(course => course.id === parseInt(form.watch('courseId')));
 
   return (
     <FormLayout
@@ -134,21 +136,24 @@ export default function CreateChallengePage() {
 
             <FormField
               control={form.control}
-              name="course"
+              name="courseId"
               rules={{ required: "Please select a course" }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Course</FormLabel>
-                  <Select onValueChange={field.onChange}>
+                  <Select onValueChange={field.onChange} disabled={coursesLoading}>
                     <FormControl>
                       <SelectTrigger className="border-amber-300 focus:border-amber-500">
-                        <SelectValue placeholder="Select course" />
+                        <SelectValue placeholder={coursesLoading ? "Loading courses..." : "Select course"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {courses.map((course) => (
-                        <SelectItem key={course.value} value={course.value}>
-                          {course.label}
+                        <SelectItem key={course.id} value={course.id.toString()}>
+                          <div className="flex items-center gap-2">
+                            <span>📚</span>
+                            <span>{course.title}</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -316,6 +321,19 @@ export default function CreateChallengePage() {
               </div>
             ))}
           </div>
+
+          {selectedCourse && (
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <h3 className="font-medium text-amber-900 mb-2">Selected Course</h3>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📚</span>
+                <div>
+                  <p className="font-medium text-amber-800">{selectedCourse.title}</p>
+                  <p className="text-sm text-amber-600">{selectedCourse.description}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end gap-4 pt-6 border-t border-amber-200">
             <Button 

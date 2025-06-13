@@ -3,96 +3,96 @@ import React, { useState } from 'react';
 import { FormLayout } from '@/components/admin/FormLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, Plus, Trash2 } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { BookOpen } from 'lucide-react';
+import { courseService } from '@/services/courseService';
+import { lessonService, CreateLessonRequest } from '@/services/lessonService';
 
 interface LessonFormData {
   title: string;
-  course: string;
+  courseId: string;
   duration: string;
   description: string;
-  vocabulary: string[];
-  objectives: string[];
+  content: string;
+  lessonType: string;
+  orderIndex: string;
 }
 
-const courses = [
-  { value: 'swahili-basics', label: 'Swahili Basics' },
-  { value: 'yoruba-fundamentals', label: 'Yoruba Fundamentals' },
-  { value: 'amharic-expressions', label: 'Amharic Expressions' },
-  { value: 'zulu-conversations', label: 'Zulu Conversations' },
+const lessonTypes = [
+  { value: 'video', label: 'Video Lesson' },
+  { value: 'text', label: 'Text Lesson' },
+  { value: 'interactive', label: 'Interactive Lesson' },
+  { value: 'quiz', label: 'Quiz Lesson' },
 ];
 
 export default function CreateLessonPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [vocabulary, setVocabulary] = useState<string[]>(['']);
-  const [objectives, setObjectives] = useState<string[]>(['']);
+
+  const { data: courses = [], isLoading: coursesLoading } = useQuery({
+    queryKey: ['courses'],
+    queryFn: courseService.getAll,
+  });
 
   const form = useForm<LessonFormData>({
     defaultValues: {
       title: '',
-      course: '',
+      courseId: '',
       duration: '',
       description: '',
-      vocabulary: [],
-      objectives: [],
+      content: '',
+      lessonType: '',
+      orderIndex: '1',
     },
   });
-
-  const addVocabularyItem = () => {
-    setVocabulary([...vocabulary, '']);
-  };
-
-  const removeVocabularyItem = (index: number) => {
-    setVocabulary(vocabulary.filter((_, i) => i !== index));
-  };
-
-  const updateVocabularyItem = (index: number, value: string) => {
-    const updated = [...vocabulary];
-    updated[index] = value;
-    setVocabulary(updated);
-  };
-
-  const addObjective = () => {
-    setObjectives([...objectives, '']);
-  };
-
-  const removeObjective = (index: number) => {
-    setObjectives(objectives.filter((_, i) => i !== index));
-  };
-
-  const updateObjective = (index: number, value: string) => {
-    const updated = [...objectives];
-    updated[index] = value;
-    setObjectives(updated);
-  };
 
   const onSubmit = async (data: LessonFormData) => {
     setIsSubmitting(true);
     
-    const formData = {
-      ...data,
-      vocabulary: vocabulary.filter(item => item.trim() !== ''),
-      objectives: objectives.filter(item => item.trim() !== ''),
-    };
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Lesson Created Successfully!",
-      description: `"${data.title}" has been created and added to the course.`,
-    });
-    
-    setIsSubmitting(false);
-    navigate('/admin/lessons');
+    try {
+      const lessonData: CreateLessonRequest = {
+        title: data.title,
+        description: data.description,
+        content: data.content,
+        lessonType: data.lessonType,
+        orderIndex: parseInt(data.orderIndex),
+        duration: data.duration,
+        course: {
+          id: parseInt(data.courseId),
+        },
+      };
+
+      await lessonService.create(lessonData);
+      
+      // Invalidate lessons query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      
+      toast({
+        title: "Lesson Created Successfully!",
+        description: `"${data.title}" has been created and added to the course.`,
+      });
+      
+      navigate('/admin/lessons');
+    } catch (error) {
+      console.error('Failed to create lesson:', error);
+      toast({
+        title: "Failed to Create Lesson",
+        description: "There was an error creating the lesson. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const selectedCourse = courses.find(course => course.id === parseInt(form.watch('courseId')));
 
   return (
     <FormLayout
@@ -124,21 +124,50 @@ export default function CreateLessonPage() {
 
             <FormField
               control={form.control}
-              name="course"
+              name="courseId"
               rules={{ required: "Please select a course" }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Course</FormLabel>
-                  <Select onValueChange={field.onChange}>
+                  <Select onValueChange={field.onChange} disabled={coursesLoading}>
                     <FormControl>
                       <SelectTrigger className="border-amber-300 focus:border-amber-500">
-                        <SelectValue placeholder="Select course" />
+                        <SelectValue placeholder={coursesLoading ? "Loading courses..." : "Select course"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {courses.map((course) => (
-                        <SelectItem key={course.value} value={course.value}>
-                          {course.label}
+                        <SelectItem key={course.id} value={course.id.toString()}>
+                          <div className="flex items-center gap-2">
+                            <span>📚</span>
+                            <span>{course.title}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="lessonType"
+              rules={{ required: "Please select a lesson type" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lesson Type</FormLabel>
+                  <Select onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="border-amber-300 focus:border-amber-500">
+                        <SelectValue placeholder="Select lesson type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {lessonTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -158,6 +187,26 @@ export default function CreateLessonPage() {
                   <FormControl>
                     <Input 
                       placeholder="e.g., 15 minutes" 
+                      className="border-amber-300 focus:border-amber-500"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="orderIndex"
+              rules={{ required: "Order index is required" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Order Index</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="e.g., 1" 
+                      type="number"
                       className="border-amber-300 focus:border-amber-500"
                       {...field} 
                     />
@@ -187,79 +236,37 @@ export default function CreateLessonPage() {
             )}
           />
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Key Vocabulary</Label>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                onClick={addVocabularyItem}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Word
-              </Button>
-            </div>
-            {vocabulary.map((item, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  placeholder="Enter vocabulary word"
-                  value={item}
-                  onChange={(e) => updateVocabularyItem(index, e.target.value)}
-                  className="border-amber-300 focus:border-amber-500"
-                />
-                {vocabulary.length > 1 && (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    className="border-red-300 text-red-700 hover:bg-red-100"
-                    onClick={() => removeVocabularyItem(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
+          <FormField
+            control={form.control}
+            name="content"
+            rules={{ required: "Lesson content is required" }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Lesson Content</FormLabel>
+                <FormControl>
+                  <textarea
+                    placeholder="Enter the main content of the lesson..."
+                    className="flex min-h-[150px] w-full rounded-md border border-amber-300 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Learning Objectives</Label>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                onClick={addObjective}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Objective
-              </Button>
-            </div>
-            {objectives.map((item, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  placeholder="Enter learning objective"
-                  value={item}
-                  onChange={(e) => updateObjective(index, e.target.value)}
-                  className="border-amber-300 focus:border-amber-500"
-                />
-                {objectives.length > 1 && (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    className="border-red-300 text-red-700 hover:bg-red-100"
-                    onClick={() => removeObjective(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
+          {selectedCourse && (
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <h3 className="font-medium text-amber-900 mb-2">Selected Course</h3>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📚</span>
+                <div>
+                  <p className="font-medium text-amber-800">{selectedCourse.title}</p>
+                  <p className="text-sm text-amber-600">{selectedCourse.description}</p>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
 
           <div className="flex justify-end gap-4 pt-6 border-t border-amber-200">
             <Button 
