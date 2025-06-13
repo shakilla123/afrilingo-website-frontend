@@ -16,18 +16,18 @@ import { lessonService, CreateLessonRequest } from '@/services/lessonService';
 interface LessonFormData {
   title: string;
   courseId: string;
+  lessonType: string;
+  orderIndex: string;
   duration: string;
   description: string;
   content: string;
-  lessonType: string;
-  orderIndex: string;
 }
 
 const lessonTypes = [
   { value: 'video', label: 'Video Lesson' },
   { value: 'text', label: 'Text Lesson' },
   { value: 'interactive', label: 'Interactive Lesson' },
-  { value: 'quiz', label: 'Quiz Lesson' },
+  { value: 'audio', label: 'Audio Lesson' },
 ];
 
 export default function CreateLessonPage() {
@@ -36,24 +36,37 @@ export default function CreateLessonPage() {
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: courses = [], isLoading: coursesLoading } = useQuery({
+  console.log('CreateLessonPage: Component rendered');
+
+  const { data: courses = [], isLoading: coursesLoading, error: coursesError } = useQuery({
     queryKey: ['courses'],
-    queryFn: courseService.getAll,
+    queryFn: async () => {
+      console.log('CreateLessonPage: Fetching courses...');
+      try {
+        const result = await courseService.getAll();
+        console.log('CreateLessonPage: Courses fetched successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('CreateLessonPage: Error fetching courses:', error);
+        throw error;
+      }
+    },
   });
 
   const form = useForm<LessonFormData>({
     defaultValues: {
       title: '',
       courseId: '',
+      lessonType: '',
+      orderIndex: '',
       duration: '',
       description: '',
       content: '',
-      lessonType: '',
-      orderIndex: '1',
     },
   });
 
   const onSubmit = async (data: LessonFormData) => {
+    console.log('CreateLessonPage: Form submitted with data:', data);
     setIsSubmitting(true);
     
     try {
@@ -69,19 +82,21 @@ export default function CreateLessonPage() {
         },
       };
 
-      await lessonService.create(lessonData);
+      console.log('CreateLessonPage: Sending lesson creation request:', lessonData);
+      const result = await lessonService.create(lessonData);
+      console.log('CreateLessonPage: Lesson created successfully:', result);
       
       // Invalidate lessons query to refresh the list
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
       
       toast({
         title: "Lesson Created Successfully!",
-        description: `"${data.title}" has been created and added to the course.`,
+        description: `"${data.title}" has been created and is ready for students.`,
       });
       
       navigate('/admin/lessons');
     } catch (error) {
-      console.error('Failed to create lesson:', error);
+      console.error('CreateLessonPage: Failed to create lesson:', error);
       toast({
         title: "Failed to Create Lesson",
         description: "There was an error creating the lesson. Please try again.",
@@ -94,10 +109,34 @@ export default function CreateLessonPage() {
 
   const selectedCourse = courses.find(course => course.id === parseInt(form.watch('courseId')));
 
+  console.log('CreateLessonPage: Current state:', {
+    coursesLoading,
+    coursesError,
+    coursesCount: courses.length,
+    selectedCourse,
+    isSubmitting
+  });
+
+  if (coursesError) {
+    console.error('CreateLessonPage: Courses error:', coursesError);
+    return (
+      <FormLayout
+        title="Create New Lesson"
+        description="Build engaging lessons for your students"
+        backUrl="/admin/lessons"
+      >
+        <div className="text-center text-red-600 p-8">
+          <p>Failed to load courses. Please try again.</p>
+          <p className="text-sm mt-2">Check the console for more details.</p>
+        </div>
+      </FormLayout>
+    );
+  }
+
   return (
     <FormLayout
       title="Create New Lesson"
-      description="Design engaging lesson content for your students"
+      description="Build engaging lessons for your students"
       backUrl="/admin/lessons"
     >
       <Form {...form}>
@@ -112,7 +151,7 @@ export default function CreateLessonPage() {
                   <FormLabel>Lesson Title</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="e.g., Basic Greetings" 
+                      placeholder="e.g., Introduction to Greetings" 
                       className="border-amber-300 focus:border-amber-500"
                       {...field} 
                     />
@@ -179,14 +218,15 @@ export default function CreateLessonPage() {
 
             <FormField
               control={form.control}
-              name="duration"
-              rules={{ required: "Duration is required" }}
+              name="orderIndex"
+              rules={{ required: "Order index is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Duration</FormLabel>
+                  <FormLabel>Order Index</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="e.g., 15 minutes" 
+                      placeholder="e.g., 1" 
+                      type="number"
                       className="border-amber-300 focus:border-amber-500"
                       {...field} 
                     />
@@ -198,15 +238,14 @@ export default function CreateLessonPage() {
 
             <FormField
               control={form.control}
-              name="orderIndex"
-              rules={{ required: "Order index is required" }}
+              name="duration"
+              rules={{ required: "Duration is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Order Index</FormLabel>
+                  <FormLabel>Duration</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="e.g., 1" 
-                      type="number"
+                      placeholder="e.g., 15 minutes" 
                       className="border-amber-300 focus:border-amber-500"
                       {...field} 
                     />
@@ -246,7 +285,7 @@ export default function CreateLessonPage() {
                 <FormControl>
                   <textarea
                     placeholder="Enter the main content of the lesson..."
-                    className="flex min-h-[150px] w-full rounded-md border border-amber-300 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-[200px] w-full rounded-md border border-amber-300 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     {...field}
                   />
                 </FormControl>

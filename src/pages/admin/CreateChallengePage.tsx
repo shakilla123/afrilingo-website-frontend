@@ -9,9 +9,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Trophy, Plus, Trash2 } from 'lucide-react';
 import { courseService } from '@/services/courseService';
+import { challengeService, CreateChallengeRequest } from '@/services/challengeService';
 
 interface ChallengeFormData {
   title: string;
@@ -20,8 +21,6 @@ interface ChallengeFormData {
   points: string;
   timeLimit: string;
   description: string;
-  requirements: string[];
-  rewards: string[];
 }
 
 const difficulties = [
@@ -33,13 +32,26 @@ const difficulties = [
 export default function CreateChallengePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requirements, setRequirements] = useState<string[]>(['']);
   const [rewards, setRewards] = useState<string[]>(['']);
 
-  const { data: courses = [], isLoading: coursesLoading } = useQuery({
+  console.log('CreateChallengePage: Component rendered');
+
+  const { data: courses = [], isLoading: coursesLoading, error: coursesError } = useQuery({
     queryKey: ['courses'],
-    queryFn: courseService.getAll,
+    queryFn: async () => {
+      console.log('CreateChallengePage: Fetching courses...');
+      try {
+        const result = await courseService.getAll();
+        console.log('CreateChallengePage: Courses fetched successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('CreateChallengePage: Error fetching courses:', error);
+        throw error;
+      }
+    },
   });
 
   const form = useForm<ChallengeFormData>({
@@ -50,8 +62,6 @@ export default function CreateChallengePage() {
       points: '',
       timeLimit: '',
       description: '',
-      requirements: [],
-      rewards: [],
     },
   });
 
@@ -84,27 +94,73 @@ export default function CreateChallengePage() {
   };
 
   const onSubmit = async (data: ChallengeFormData) => {
+    console.log('CreateChallengePage: Form submitted with data:', data);
     setIsSubmitting(true);
     
-    const formData = {
-      ...data,
-      requirements: requirements.filter(item => item.trim() !== ''),
-      rewards: rewards.filter(item => item.trim() !== ''),
-    };
-    
-    // Simulate API call for now (challenge service not implemented yet)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Challenge Created Successfully!",
-      description: `"${data.title}" is now available for students to attempt.`,
-    });
-    
-    setIsSubmitting(false);
-    navigate('/admin/challenges');
+    try {
+      const challengeData: CreateChallengeRequest = {
+        title: data.title,
+        description: data.description,
+        difficulty: data.difficulty,
+        points: parseInt(data.points),
+        timeLimit: data.timeLimit,
+        requirements: requirements.filter(item => item.trim() !== ''),
+        rewards: rewards.filter(item => item.trim() !== ''),
+        course: {
+          id: parseInt(data.courseId),
+        },
+      };
+
+      console.log('CreateChallengePage: Sending challenge creation request:', challengeData);
+      const result = await challengeService.create(challengeData);
+      console.log('CreateChallengePage: Challenge created successfully:', result);
+      
+      // Invalidate challenges query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['challenges'] });
+      
+      toast({
+        title: "Challenge Created Successfully!",
+        description: `"${data.title}" is now available for students to attempt.`,
+      });
+      
+      navigate('/admin/challenges');
+    } catch (error) {
+      console.error('CreateChallengePage: Failed to create challenge:', error);
+      toast({
+        title: "Failed to Create Challenge",
+        description: "There was an error creating the challenge. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const selectedCourse = courses.find(course => course.id === parseInt(form.watch('courseId')));
+
+  console.log('CreateChallengePage: Current state:', {
+    coursesLoading,
+    coursesError,
+    coursesCount: courses.length,
+    selectedCourse,
+    isSubmitting
+  });
+
+  if (coursesError) {
+    console.error('CreateChallengePage: Courses error:', coursesError);
+    return (
+      <FormLayout
+        title="Create New Challenge"
+        description="Design exciting challenges to motivate your students"
+        backUrl="/admin/challenges"
+      >
+        <div className="text-center text-red-600 p-8">
+          <p>Failed to load courses. Please try again.</p>
+          <p className="text-sm mt-2">Check the console for more details.</p>
+        </div>
+      </FormLayout>
+    );
+  }
 
   return (
     <FormLayout

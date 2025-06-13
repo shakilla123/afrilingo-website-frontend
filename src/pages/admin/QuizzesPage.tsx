@@ -6,12 +6,15 @@ import { List } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { QuizCard } from '@/components/admin/quizzes/QuizCard';
 import { SearchFilter } from '@/components/admin/shared/SearchFilter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { quizService, Quiz } from '@/services/quizService';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function QuizzesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: quizzes = [], isLoading, error } = useQuery({
     queryKey: ['quizzes'],
@@ -19,10 +22,7 @@ export default function QuizzesPage() {
   });
 
   const handleCreateQuiz = () => {
-    toast({
-      title: "Create Quiz",
-      description: "Opening quiz creation form...",
-    });
+    navigate('/admin/quizzes/new');
   };
 
   const handleViewResults = (quizId: number, title: string) => {
@@ -42,6 +42,7 @@ export default function QuizzesPage() {
   const handleDeleteQuiz = async (quizId: number, title: string) => {
     try {
       await quizService.delete(quizId);
+      queryClient.invalidateQueries({ queryKey: ['quizzes'] });
       toast({
         title: "Quiz Deleted",
         description: `"${title}" has been deleted successfully.`,

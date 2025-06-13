@@ -27,9 +27,21 @@ export default function CreateQuizPage() {
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: lessons = [], isLoading: lessonsLoading } = useQuery({
+  console.log('CreateQuizPage: Component rendered');
+
+  const { data: lessons = [], isLoading: lessonsLoading, error: lessonsError } = useQuery({
     queryKey: ['lessons'],
-    queryFn: lessonService.getAll,
+    queryFn: async () => {
+      console.log('CreateQuizPage: Fetching lessons...');
+      try {
+        const result = await lessonService.getAll();
+        console.log('CreateQuizPage: Lessons fetched successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('CreateQuizPage: Error fetching lessons:', error);
+        throw error;
+      }
+    },
   });
 
   const form = useForm<QuizFormData>({
@@ -43,6 +55,7 @@ export default function CreateQuizPage() {
   });
 
   const onSubmit = async (data: QuizFormData) => {
+    console.log('CreateQuizPage: Form submitted with data:', data);
     setIsSubmitting(true);
     
     try {
@@ -56,7 +69,9 @@ export default function CreateQuizPage() {
         },
       };
 
-      await quizService.create(quizData);
+      console.log('CreateQuizPage: Sending quiz creation request:', quizData);
+      const result = await quizService.create(quizData);
+      console.log('CreateQuizPage: Quiz created successfully:', result);
       
       // Invalidate quizzes query to refresh the list
       queryClient.invalidateQueries({ queryKey: ['quizzes'] });
@@ -68,7 +83,7 @@ export default function CreateQuizPage() {
       
       navigate('/admin/quizzes');
     } catch (error) {
-      console.error('Failed to create quiz:', error);
+      console.error('CreateQuizPage: Failed to create quiz:', error);
       toast({
         title: "Failed to Create Quiz",
         description: "There was an error creating the quiz. Please try again.",
@@ -80,6 +95,30 @@ export default function CreateQuizPage() {
   };
 
   const selectedLesson = lessons.find(lesson => lesson.id === parseInt(form.watch('lessonId')));
+
+  console.log('CreateQuizPage: Current state:', {
+    lessonsLoading,
+    lessonsError,
+    lessonsCount: lessons.length,
+    selectedLesson,
+    isSubmitting
+  });
+
+  if (lessonsError) {
+    console.error('CreateQuizPage: Lessons error:', lessonsError);
+    return (
+      <FormLayout
+        title="Create New Quiz"
+        description="Build interactive quizzes to test student knowledge"
+        backUrl="/admin/quizzes"
+      >
+        <div className="text-center text-red-600 p-8">
+          <p>Failed to load lessons. Please try again.</p>
+          <p className="text-sm mt-2">Check the console for more details.</p>
+        </div>
+      </FormLayout>
+    );
+  }
 
   return (
     <FormLayout

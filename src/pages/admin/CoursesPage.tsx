@@ -4,15 +4,16 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Book, Search, Plus, Users, Star, Edit, Trash2, Eye, Filter } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { courseService, Course } from '@/services/courseService';
 
 export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: courses = [], isLoading, error } = useQuery({
     queryKey: ['courses'],
@@ -30,13 +31,14 @@ export default function CoursesPage() {
   const handleEditCourse = (courseId: number, title: string) => {
     toast({
       title: "Edit Course",
-      description: `Editing "${title}"`,
+      description: `Editing "${title}" - Edit functionality coming soon`,
     });
   };
 
   const handleDeleteCourse = async (courseId: number, title: string) => {
     try {
       await courseService.delete(courseId);
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
       toast({
         title: "Course Deleted",
         description: `"${title}" has been deleted successfully.`,
@@ -53,7 +55,7 @@ export default function CoursesPage() {
   const handleViewCourse = (courseId: number, title: string) => {
     toast({
       title: "View Course",
-      description: `Opening "${title}" details`,
+      description: `Opening "${title}" details - Preview functionality coming soon`,
     });
   };
 
@@ -199,7 +201,7 @@ export default function CoursesPage() {
 
         {courses.length === 0 && (
           <div className="text-center py-12">
-            <Book className="h-12 w-12 text-amber-400 mx-auto mb-4" />
+            <div className="h-12 w-12 text-amber-400 mx-auto mb-4">📚</div>
             <h3 className="text-lg font-medium text-amber-900 mb-2">No courses yet</h3>
             <p className="text-amber-600 mb-6">Get started by creating your first course.</p>
             <Link to="/admin/courses/new">

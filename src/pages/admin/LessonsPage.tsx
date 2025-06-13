@@ -4,15 +4,16 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { BookOpen, Clock, Users, Play, Edit, Trash2, Search, Filter, Plus } from 'lucide-react';
+import { BookOpen, Clock, Play, Edit, Trash2, Search, Filter, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { lessonService, Lesson } from '@/services/lessonService';
 
 export default function LessonsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: lessons = [], isLoading, error } = useQuery({
     queryKey: ['lessons'],
@@ -22,20 +23,21 @@ export default function LessonsPage() {
   const handlePreviewLesson = (lessonId: number, title: string) => {
     toast({
       title: "Preview Lesson",
-      description: `Previewing "${title}"`,
+      description: `Previewing "${title}" - Preview functionality coming soon`,
     });
   };
 
   const handleEditLesson = (lessonId: number, title: string) => {
     toast({
       title: "Edit Lesson",
-      description: `Editing "${title}"`,
+      description: `Editing "${title}" - Edit functionality coming soon`,
     });
   };
 
   const handleDeleteLesson = async (lessonId: number, title: string) => {
     try {
       await lessonService.delete(lessonId);
+      queryClient.invalidateQueries({ queryKey: ['lessons'] });
       toast({
         title: "Lesson Deleted",
         description: `"${title}" has been deleted successfully.`,
