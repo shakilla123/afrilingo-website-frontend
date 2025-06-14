@@ -74,18 +74,15 @@ export interface PaginatedQuizzesResponse {
 
 export const quizService = {
   async getAll(): Promise<Quiz[]> {
-    const response = await httpClient.get('/quizzes');
-    return response.data;
+    return await httpClient.get<Quiz[]>('/quizzes');
   },
 
   async getById(id: number): Promise<Quiz> {
-    const response = await httpClient.get(`/quizzes/${id}`);
-    return response.data;
+    return await httpClient.get<Quiz>(`/quizzes/${id}`);
   },
 
   async getByLessonId(lessonId: number): Promise<Quiz[]> {
-    const response = await httpClient.get(`/quizzes/lesson/${lessonId}`);
-    return response.data;
+    return await httpClient.get<Quiz[]>(`/quizzes/lesson/${lessonId}`);
   },
 
   async getPaginated(params: PaginatedQuizzesRequest): Promise<PaginatedQuizzesResponse> {
@@ -100,41 +97,34 @@ export const quizService = {
       });
     }
 
-    const response = await httpClient.get(`/quizzes/paginated?${queryParams}`);
-    return response.data;
+    return await httpClient.get<PaginatedQuizzesResponse>(`/quizzes/paginated?${queryParams}`);
   },
 
   async create(data: CreateQuizRequest): Promise<Quiz> {
-    const response = await httpClient.post('/quizzes', data);
-    return response.data;
+    return await httpClient.post<Quiz>('/quizzes', data);
   },
 
   async update(id: number, data: UpdateQuizRequest): Promise<Quiz> {
-    const response = await httpClient.put(`/quizzes/${id}`, data);
-    return response.data;
+    return await httpClient.put<Quiz>(`/quizzes/${id}`, data);
   },
 
   async delete(id: number): Promise<void> {
-    await httpClient.delete(`/quizzes/${id}`);
+    await httpClient.delete<void>(`/quizzes/${id}`);
   },
 
   async getQuestions(id: number): Promise<QuizQuestion[]> {
-    const response = await httpClient.get(`/quizzes/${id}/questions`);
-    return response.data;
+    return await httpClient.get<QuizQuestion[]>(`/quizzes/${id}/questions`);
   },
 
   async addQuestion(id: number, questionData: CreateQuestionRequest): Promise<Quiz> {
-    const response = await httpClient.post(`/quizzes/${id}/questions`, questionData);
-    return response.data;
+    return await httpClient.post<Quiz>(`/quizzes/${id}/questions`, questionData);
   },
 
   async removeQuestion(quizId: number, questionId: number): Promise<Quiz> {
-    const response = await httpClient.delete(`/quizzes/${quizId}/questions/${questionId}`);
-    return response.data;
+    return await httpClient.delete<Quiz>(`/quizzes/${quizId}/questions/${questionId}`);
   },
 
   async getStatistics(id: number): Promise<Record<string, any>> {
-    const response = await httpClient.get(`/quizzes/${id}/statistics`);
-    return response.data;
+    return await httpClient.get<Record<string, any>>(`/quizzes/${id}/statistics`);
   },
 };
