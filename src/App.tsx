@@ -25,6 +25,9 @@ import EditLessonPage from "./pages/admin/EditLessonPage";
 import ViewLessonPage from "./pages/admin/ViewLessonPage";
 import CreateQuizPage from "./pages/admin/CreateQuizPage";
 import CreateChallengePage from "./pages/admin/CreateChallengePage";
+import LanguagesPage from "./pages/admin/LanguagesPage";
+import CreateLanguagePage from "./pages/admin/CreateLanguagePage";
+import EditLanguagePage from "./pages/admin/EditLanguagePage";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -50,6 +53,21 @@ const App = () => {
               <Route path="/admin" element={
                 <ProtectedRoute>
                   <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/languages" element={
+                <ProtectedRoute>
+                  <LanguagesPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/languages/new" element={
+                <ProtectedRoute>
+                  <CreateLanguagePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/languages/:id/edit" element={
+                <ProtectedRoute>
+                  <EditLanguagePage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/courses" element={
