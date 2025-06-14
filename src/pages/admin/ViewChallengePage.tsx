@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { challengeService } from '@/services/challengeService';
-import { Trophy, Clock, Award, Target, Gift } from 'lucide-react';
+import { Trophy, Target, BookOpen, List } from 'lucide-react';
 
 export default function ViewChallengePage() {
   const { id } = useParams<{ id: string }>();
@@ -50,11 +50,11 @@ export default function ViewChallengePage() {
   }
 
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
+    switch (difficulty?.toLowerCase()) {
       case 'easy': return 'bg-green-100 text-green-800';
       case 'medium': return 'bg-yellow-100 text-yellow-800';
       case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-blue-100 text-blue-800';
     }
   };
 
@@ -76,8 +76,8 @@ export default function ViewChallengePage() {
                   <p className="text-amber-600">Course: {challenge.course.title}</p>
                 </div>
               </div>
-              <Badge className={getDifficultyColor(challenge.difficulty)}>
-                {challenge.difficulty}
+              <Badge className={getDifficultyColor(challenge.difficulty || 'medium')}>
+                {challenge.difficulty || 'Challenge'}
               </Badge>
             </div>
           </CardHeader>
@@ -87,29 +87,17 @@ export default function ViewChallengePage() {
         </Card>
 
         {/* Challenge Details */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           <Card className="border-amber-200">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-amber-600" />
-                <CardTitle className="text-lg">Points Reward</CardTitle>
+                <List className="h-5 w-5 text-amber-600" />
+                <CardTitle className="text-lg">Questions</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-amber-900">{challenge.points}</p>
-              <p className="text-sm text-amber-600">Points</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-amber-200">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-amber-600" />
-                <CardTitle className="text-lg">Time Limit</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-amber-900">{challenge.timeLimit}</p>
+              <p className="text-2xl font-bold text-amber-900">{challenge.questions?.length || 0}</p>
+              <p className="text-sm text-amber-600">Total questions</p>
             </CardContent>
           </Card>
 
@@ -117,57 +105,56 @@ export default function ViewChallengePage() {
             <CardHeader className="pb-4">
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-amber-600" />
-                <CardTitle className="text-lg">Difficulty</CardTitle>
+                <CardTitle className="text-lg">Minimum Passing Score</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
-              <Badge className={getDifficultyColor(challenge.difficulty)} variant="outline">
-                {challenge.difficulty}
-              </Badge>
+              <p className="text-2xl font-bold text-amber-900">{challenge.minPassingScore || 70}%</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Requirements */}
-        {challenge.requirements && challenge.requirements.length > 0 && (
+        {/* Questions Preview */}
+        {challenge.questions && challenge.questions.length > 0 && (
           <Card className="border-amber-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-amber-600" />
-                Requirements
+                <List className="h-5 w-5 text-amber-600" />
+                Questions Preview
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
-                {challenge.requirements.map((requirement, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-amber-600 mt-1">•</span>
-                    <span className="text-amber-700">{requirement}</span>
-                  </li>
+              <div className="space-y-4">
+                {challenge.questions.slice(0, 3).map((question, index) => (
+                  <div key={question.id} className="p-4 border border-amber-200 rounded-lg">
+                    <p className="font-medium text-amber-900 mb-2">
+                      {index + 1}. {question.questionText}
+                    </p>
+                    <div className="flex items-center justify-between text-sm text-amber-600">
+                      <span>Type: {question.questionType}</span>
+                      <span>Points: {question.points}</span>
+                    </div>
+                    {question.options && question.options.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {question.options.slice(0, 2).map((option, optIndex) => (
+                          <div key={option.id} className="text-sm text-amber-700 flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${option.correct ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                            {option.optionText}
+                          </div>
+                        ))}
+                        {question.options.length > 2 && (
+                          <p className="text-xs text-amber-500">... and {question.options.length - 2} more options</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Rewards */}
-        {challenge.rewards && challenge.rewards.length > 0 && (
-          <Card className="border-amber-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gift className="h-5 w-5 text-amber-600" />
-                Rewards
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {challenge.rewards.map((reward, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-amber-600 mt-1">•</span>
-                    <span className="text-amber-700">{reward}</span>
-                  </li>
-                ))}
-              </ul>
+                {challenge.questions.length > 3 && (
+                  <p className="text-sm text-amber-600 text-center">
+                    ... and {challenge.questions.length - 3} more questions
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}

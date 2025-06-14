@@ -10,32 +10,22 @@ import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Trophy, Plus, Trash2 } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { courseService } from '@/services/courseService';
 import { challengeService, CreateChallengeRequest } from '@/services/challengeService';
 
 interface ChallengeFormData {
   title: string;
   courseId: string;
-  difficulty: string;
-  points: string;
-  timeLimit: string;
+  minPassingScore: string;
   description: string;
 }
-
-const difficulties = [
-  { value: 'easy', label: 'Easy', color: 'text-green-600' },
-  { value: 'medium', label: 'Medium', color: 'text-yellow-600' },
-  { value: 'hard', label: 'Hard', color: 'text-red-600' },
-];
 
 export default function CreateChallengePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [requirements, setRequirements] = useState<string[]>(['']);
-  const [rewards, setRewards] = useState<string[]>(['']);
 
   console.log('CreateChallengePage: Component rendered');
 
@@ -58,40 +48,10 @@ export default function CreateChallengePage() {
     defaultValues: {
       title: '',
       courseId: '',
-      difficulty: '',
-      points: '',
-      timeLimit: '',
+      minPassingScore: '70',
       description: '',
     },
   });
-
-  const addRequirement = () => {
-    setRequirements([...requirements, '']);
-  };
-
-  const removeRequirement = (index: number) => {
-    setRequirements(requirements.filter((_, i) => i !== index));
-  };
-
-  const updateRequirement = (index: number, value: string) => {
-    const updated = [...requirements];
-    updated[index] = value;
-    setRequirements(updated);
-  };
-
-  const addReward = () => {
-    setRewards([...rewards, '']);
-  };
-
-  const removeReward = (index: number) => {
-    setRewards(rewards.filter((_, i) => i !== index));
-  };
-
-  const updateReward = (index: number, value: string) => {
-    const updated = [...rewards];
-    updated[index] = value;
-    setRewards(updated);
-  };
 
   const onSubmit = async (data: ChallengeFormData) => {
     console.log('CreateChallengePage: Form submitted with data:', data);
@@ -101,11 +61,7 @@ export default function CreateChallengePage() {
       const challengeData: CreateChallengeRequest = {
         title: data.title,
         description: data.description,
-        difficulty: data.difficulty,
-        points: parseInt(data.points),
-        timeLimit: data.timeLimit,
-        requirements: requirements.filter(item => item.trim() !== ''),
-        rewards: rewards.filter(item => item.trim() !== ''),
+        minPassingScore: parseInt(data.minPassingScore),
         course: {
           id: parseInt(data.courseId),
         },
@@ -180,7 +136,7 @@ export default function CreateChallengePage() {
                   <FormLabel>Challenge Title</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="e.g., Conversation Master" 
+                      placeholder="e.g., Conversation Master Challenge" 
                       className="border-amber-300 focus:border-amber-500"
                       {...field} 
                     />
@@ -221,60 +177,15 @@ export default function CreateChallengePage() {
 
             <FormField
               control={form.control}
-              name="difficulty"
-              rules={{ required: "Please select difficulty" }}
+              name="minPassingScore"
+              rules={{ required: "Minimum passing score is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Difficulty Level</FormLabel>
-                  <Select onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger className="border-amber-300 focus:border-amber-500">
-                        <SelectValue placeholder="Select difficulty" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {difficulties.map((difficulty) => (
-                        <SelectItem key={difficulty.value} value={difficulty.value}>
-                          <span className={difficulty.color}>{difficulty.label}</span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="points"
-              rules={{ required: "Points value is required" }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Points Reward</FormLabel>
+                  <FormLabel>Minimum Passing Score (%)</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="e.g., 100" 
+                      placeholder="e.g., 80" 
                       type="number"
-                      className="border-amber-300 focus:border-amber-500"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="timeLimit"
-              rules={{ required: "Time limit is required" }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Time Limit</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="e.g., 30 minutes" 
                       className="border-amber-300 focus:border-amber-500"
                       {...field} 
                     />
@@ -303,80 +214,6 @@ export default function CreateChallengePage() {
               </FormItem>
             )}
           />
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Requirements</Label>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                onClick={addRequirement}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Requirement
-              </Button>
-            </div>
-            {requirements.map((item, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  placeholder="e.g., Complete 3 lessons in Greetings"
-                  value={item}
-                  onChange={(e) => updateRequirement(index, e.target.value)}
-                  className="border-amber-300 focus:border-amber-500"
-                />
-                {requirements.length > 1 && (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    className="border-red-300 text-red-700 hover:bg-red-100"
-                    onClick={() => removeRequirement(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Rewards</Label>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                onClick={addReward}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Reward
-              </Button>
-            </div>
-            {rewards.map((item, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  placeholder="e.g., Conversation Master Badge"
-                  value={item}
-                  onChange={(e) => updateReward(index, e.target.value)}
-                  className="border-amber-300 focus:border-amber-500"
-                />
-                {rewards.length > 1 && (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    className="border-red-300 text-red-700 hover:bg-red-100"
-                    onClick={() => removeReward(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
 
           {selectedCourse && (
             <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
