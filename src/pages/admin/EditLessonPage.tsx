@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -75,8 +75,24 @@ export default function EditLessonPage() {
     },
   });
 
+  const { fields, append, remove, replace } = useFieldArray({
+    control: form.control,
+    name: 'contents',
+  });
+
   useEffect(() => {
     if (lesson) {
+      const contentsData = lesson.contents.length > 0 ? lesson.contents.map(content => ({
+        id: content.id,
+        contentType: content.contentType,
+        contentData: content.contentData,
+        mediaUrl: content.mediaUrl || '',
+      })) : [{
+        contentType: 'TEXT' as const,
+        contentData: '',
+        mediaUrl: '',
+      }];
+
       form.reset({
         title: lesson.title,
         courseId: lesson.course.id.toString(),
@@ -84,19 +100,13 @@ export default function EditLessonPage() {
         orderIndex: lesson.orderIndex.toString(),
         description: lesson.description,
         required: lesson.required,
-        contents: lesson.contents.length > 0 ? lesson.contents.map(content => ({
-          id: content.id,
-          contentType: content.contentType,
-          contentData: content.contentData,
-          mediaUrl: content.mediaUrl || '',
-        })) : [{
-          contentType: 'TEXT',
-          contentData: '',
-          mediaUrl: '',
-        }],
+        contents: contentsData,
       });
+
+      // Replace the field array with the lesson contents
+      replace(contentsData);
     }
-  }, [lesson, form]);
+  }, [lesson, form, replace]);
 
   const onSubmit = async (data: LessonFormData) => {
     setIsSubmitting(true);
@@ -114,6 +124,7 @@ export default function EditLessonPage() {
         contents: data.contents.filter(content => content.contentData.trim() !== ''),
       };
 
+      console.log('Updating lesson with data:', lessonData);
       await lessonService.update(lessonId, lessonData);
       
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
@@ -126,6 +137,7 @@ export default function EditLessonPage() {
       
       navigate('/admin/lessons');
     } catch (error) {
+      console.error('Update lesson error:', error);
       toast({
         title: "Failed to Update Lesson",
         description: "There was an error updating the lesson. Please try again.",
@@ -137,17 +149,12 @@ export default function EditLessonPage() {
   };
 
   const addContent = () => {
-    const currentContents = form.getValues('contents');
-    form.setValue('contents', [
-      ...currentContents,
-      { contentType: 'TEXT', contentData: '', mediaUrl: '' }
-    ]);
+    append({ contentType: 'TEXT', contentData: '', mediaUrl: '' });
   };
 
   const removeContent = (index: number) => {
-    const currentContents = form.getValues('contents');
-    if (currentContents.length > 1) {
-      form.setValue('contents', currentContents.filter((_, i) => i !== index));
+    if (fields.length > 1) {
+      remove(index);
     }
   };
 
@@ -219,7 +226,7 @@ export default function EditLessonPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Course</FormLabel>
-                  <Select onValueChange={field.onChange} disabled={coursesLoading}>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={coursesLoading}>
                     <FormControl>
                       <SelectTrigger className="border-amber-300 focus:border-amber-500">
                         <SelectValue placeholder={coursesLoading ? "Loading courses..." : "Select course"} />
@@ -248,7 +255,7 @@ export default function EditLessonPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Lesson Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="border-amber-300 focus:border-amber-500">
                         <SelectValue placeholder="Select lesson type" />
@@ -343,11 +350,11 @@ export default function EditLessonPage() {
               </Button>
             </div>
 
-            {form.watch('contents').map((content, index) => (
-              <div key={index} className="p-4 border border-amber-200 rounded-lg space-y-4">
+            {fields.map((field, index) => (
+              <div key={field.id} className="p-4 border border-amber-200 rounded-lg space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-amber-800">Content {index + 1}</h4>
-                  {form.watch('contents').length > 1 && (
+                  {fields.length > 1 && (
                     <Button
                       type="button"
                       variant="outline"
@@ -367,7 +374,7 @@ export default function EditLessonPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Content Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className="border-amber-300 focus:border-amber-500">
                               <SelectValue placeholder="Select content type" />

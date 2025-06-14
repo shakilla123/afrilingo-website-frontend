@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,6 +42,8 @@ export default function LessonsPage() {
           title: "Lesson Deleted",
           description: `"${title}" has been deleted successfully.`,
         });
+        // Refresh the page immediately
+        window.location.reload();
       } catch (error) {
         console.error('Delete lesson error:', error);
         toast({
