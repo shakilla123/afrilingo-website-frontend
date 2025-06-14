@@ -1,21 +1,30 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { List, Eye, Edit, Trash2, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SearchFilter } from '@/components/admin/shared/SearchFilter';
+import { AdvancedSearchFilter } from '@/components/admin/shared/AdvancedSearchFilter';
+import { useSearchAndFilter } from '@/hooks/useSearchAndFilter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { quizService, Quiz } from '@/services/quizService';
 import { useNavigate } from 'react-router-dom';
 
 export default function QuizzesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const {
+    searchQuery,
+    filters,
+    handleSearchChange,
+    handleFilterChange,
+    handleClearFilters,
+    handleSearch,
+  } = useSearchAndFilter();
 
   const { data: quizzesData, isLoading, error } = useQuery({
     queryKey: ['quizzes'],
@@ -28,7 +37,32 @@ export default function QuizzesPage() {
   console.log('Is array:', Array.isArray(quizzesData));
 
   // Ensure we always have an array to work with
-  const quizzes = Array.isArray(quizzesData) ? quizzesData : [];
+  const allQuizzes = Array.isArray(quizzesData) ? quizzesData : [];
+
+  // Filter quizzes based on search query and filters
+  const filteredQuizzes = allQuizzes.filter((quiz: Quiz) => {
+    // Search filter
+    const matchesSearch = !searchQuery ||
+      quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      quiz.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      quiz.lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Difficulty filter (based on minPassingScore)
+    const matchesDifficulty = !filters.difficulty ||
+      (filters.difficulty === 'easy' && quiz.minPassingScore <= 60) ||
+      (filters.difficulty === 'medium' && quiz.minPassingScore > 60 && quiz.minPassingScore <= 80) ||
+      (filters.difficulty === 'hard' && quiz.minPassingScore > 80);
+
+    return matchesSearch && matchesDifficulty;
+  });
+
+  const filterOptions = {
+    difficulty: [
+      { value: 'easy', label: 'Easy (≤60%)' },
+      { value: 'medium', label: 'Medium (61-80%)' },
+      { value: 'hard', label: 'Hard (>80%)' }
+    ]
+  };
 
   const handleCreateQuiz = () => {
     navigate('/admin/quizzes/new');
@@ -62,29 +96,6 @@ export default function QuizzesPage() {
       }
     }
   };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Search Quizzes",
-      description: searchQuery ? `Searching for: "${searchQuery}"` : "Please enter a search term",
-    });
-  };
-
-  const handleFilter = () => {
-    toast({
-      title: "Filter Quizzes",
-      description: "Opening filter options...",
-    });
-  };
-
-  // Filter quizzes based on search query - now safe because quizzes is guaranteed to be an array
-  const filteredQuizzes = quizzes.filter((quiz: Quiz) => {
-    if (!searchQuery) return true;
-    return quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           quiz.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           quiz.lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
-  });
 
   if (isLoading) {
     return (
@@ -126,12 +137,15 @@ export default function QuizzesPage() {
           </Button>
         </div>
 
-        <SearchFilter
+        <AdvancedSearchFilter
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           onSearch={handleSearch}
-          onFilter={handleFilter}
           placeholder="Search quizzes..."
+          filterOptions={filterOptions}
+          activeFilters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -205,15 +219,22 @@ export default function QuizzesPage() {
           ))}
         </div>
 
-        {filteredQuizzes.length === 0 && quizzes.length > 0 && (
+        {filteredQuizzes.length === 0 && allQuizzes.length > 0 && (
           <div className="text-center py-12">
             <List className="h-12 w-12 text-amber-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-amber-900 mb-2">No quizzes found</h3>
-            <p className="text-amber-600 mb-6">Try adjusting your search terms.</p>
+            <p className="text-amber-600 mb-6">Try adjusting your search terms or filters.</p>
+            <Button 
+              onClick={handleClearFilters}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Clear Filters
+            </Button>
           </div>
         )}
 
-        {quizzes.length === 0 && (
+        {allQuizzes.length === 0 && (
           <div className="text-center py-12">
             <List className="h-12 w-12 text-amber-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-amber-900 mb-2">No quizzes yet</h3>

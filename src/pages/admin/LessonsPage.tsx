@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,20 +7,61 @@ import { Badge } from '@/components/ui/badge';
 import { BookOpen, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { SearchFilter } from '@/components/admin/shared/SearchFilter';
+import { AdvancedSearchFilter } from '@/components/admin/shared/AdvancedSearchFilter';
+import { useSearchAndFilter } from '@/hooks/useSearchAndFilter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { lessonService, Lesson } from '@/services/lessonService';
 
 export default function LessonsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: lessons = [], isLoading, error } = useQuery({
+  const {
+    searchQuery,
+    filters,
+    handleSearchChange,
+    handleFilterChange,
+    handleClearFilters,
+    handleSearch,
+  } = useSearchAndFilter();
+
+  const { data: allLessons = [], isLoading, error } = useQuery({
     queryKey: ['lessons'],
     queryFn: lessonService.getAll,
   });
+
+  // Filter lessons based on search query and filters
+  const filteredLessons = allLessons.filter((lesson: Lesson) => {
+    // Search filter
+    const matchesSearch = !searchQuery ||
+      lesson.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lesson.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lesson.course.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Type filter
+    const matchesType = !filters.category ||
+      lesson.type.toLowerCase() === filters.category.toLowerCase();
+
+    // Status filter (required vs optional)
+    const matchesStatus = !filters.status ||
+      (filters.status === 'required' && lesson.required) ||
+      (filters.status === 'optional' && !lesson.required);
+
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  const filterOptions = {
+    status: [
+      { value: 'required', label: 'Required' },
+      { value: 'optional', label: 'Optional' }
+    ],
+    category: [
+      { value: 'audio', label: 'Audio' },
+      { value: 'reading', label: 'Reading' },
+      { value: 'image_object', label: 'Image Object' }
+    ]
+  };
 
   const handleCreateLesson = () => {
     navigate('/admin/lessons/new');
@@ -53,21 +95,6 @@ export default function LessonsPage() {
         });
       }
     }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Search Lessons",
-      description: searchQuery ? `Searching for: "${searchQuery}"` : "Please enter a search term",
-    });
-  };
-
-  const handleFilter = () => {
-    toast({
-      title: "Filter Lessons",
-      description: "Opening filter options...",
-    });
   };
 
   const getLessonTypeIcon = (type: string) => {
@@ -128,16 +155,19 @@ export default function LessonsPage() {
           </Button>
         </div>
 
-        <SearchFilter
+        <AdvancedSearchFilter
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           onSearch={handleSearch}
-          onFilter={handleFilter}
           placeholder="Search lessons..."
+          filterOptions={filterOptions}
+          activeFilters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {lessons.map((lesson: Lesson) => (
+          {filteredLessons.map((lesson: Lesson) => (
             <Card key={lesson.id} className="border-amber-200 hover:shadow-lg transition-shadow">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
@@ -203,7 +233,22 @@ export default function LessonsPage() {
           ))}
         </div>
 
-        {lessons.length === 0 && (
+        {filteredLessons.length === 0 && allLessons.length > 0 && (
+          <div className="text-center py-12">
+            <BookOpen className="h-12 w-12 text-amber-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-amber-900 mb-2">No lessons found</h3>
+            <p className="text-amber-600 mb-6">Try adjusting your search terms or filters.</p>
+            <Button 
+              onClick={handleClearFilters}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
+
+        {allLessons.length === 0 && (
           <div className="text-center py-12">
             <BookOpen className="h-12 w-12 text-amber-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-amber-900 mb-2">No lessons yet</h3>
