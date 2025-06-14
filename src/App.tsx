@@ -21,6 +21,8 @@ import CreateCoursePage from "./pages/admin/CreateCoursePage";
 import EditCoursePage from "./pages/admin/EditCoursePage";
 import ViewCoursePage from "./pages/admin/ViewCoursePage";
 import CreateLessonPage from "./pages/admin/CreateLessonPage";
+import EditLessonPage from "./pages/admin/EditLessonPage";
+import ViewLessonPage from "./pages/admin/ViewLessonPage";
 import CreateQuizPage from "./pages/admin/CreateQuizPage";
 import CreateChallengePage from "./pages/admin/CreateChallengePage";
 import NotFound from "./pages/NotFound";
@@ -78,6 +80,16 @@ const App = () => {
               <Route path="/admin/lessons/new" element={
                 <ProtectedRoute>
                   <CreateLessonPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/lessons/:id/edit" element={
+                <ProtectedRoute>
+                  <EditLessonPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/lessons/:id/view" element={
+                <ProtectedRoute>
+                  <ViewLessonPage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/quizzes" element={

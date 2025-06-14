@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormLayout } from '@/components/admin/FormLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, Plus, Trash2 } from 'lucide-react';
 import { courseService } from '@/services/courseService';
@@ -22,6 +21,7 @@ interface LessonFormData {
   description: string;
   required: boolean;
   contents: Array<{
+    id?: number;
     contentType: 'TEXT' | 'AUDIO' | 'IMAGE_OBJECT';
     contentData: string;
     mediaUrl: string;
@@ -40,13 +40,21 @@ const contentTypes = [
   { value: 'IMAGE_OBJECT', label: 'Image Content' },
 ] as const;
 
-export default function CreateLessonPage() {
+export default function EditLessonPage() {
+  const { id } = useParams<{ id: string }>();
+  const lessonId = parseInt(id || '0');
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: courses = [], isLoading: coursesLoading, error: coursesError } = useQuery({
+  const { data: lesson, isLoading: lessonLoading, error: lessonError } = useQuery({
+    queryKey: ['lesson', lessonId],
+    queryFn: () => lessonService.getById(lessonId),
+    enabled: !!lessonId,
+  });
+
+  const { data: courses = [], isLoading: coursesLoading } = useQuery({
     queryKey: ['courses'],
     queryFn: courseService.getAll,
   });
@@ -67,7 +75,28 @@ export default function CreateLessonPage() {
     },
   });
 
-  const { fields, append, remove } = useForm().control._defaultValues;
+  useEffect(() => {
+    if (lesson) {
+      form.reset({
+        title: lesson.title,
+        courseId: lesson.course.id.toString(),
+        type: lesson.type,
+        orderIndex: lesson.orderIndex.toString(),
+        description: lesson.description,
+        required: lesson.required,
+        contents: lesson.contents.length > 0 ? lesson.contents.map(content => ({
+          id: content.id,
+          contentType: content.contentType,
+          contentData: content.contentData,
+          mediaUrl: content.mediaUrl || '',
+        })) : [{
+          contentType: 'TEXT',
+          contentData: '',
+          mediaUrl: '',
+        }],
+      });
+    }
+  }, [lesson, form]);
 
   const onSubmit = async (data: LessonFormData) => {
     setIsSubmitting(true);
@@ -85,20 +114,21 @@ export default function CreateLessonPage() {
         contents: data.contents.filter(content => content.contentData.trim() !== ''),
       };
 
-      const result = await lessonService.create(lessonData);
+      await lessonService.update(lessonId, lessonData);
       
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] });
       
       toast({
-        title: "Lesson Created Successfully!",
-        description: `"${data.title}" has been created and is ready for students.`,
+        title: "Lesson Updated Successfully!",
+        description: `"${data.title}" has been updated.`,
       });
       
       navigate('/admin/lessons');
     } catch (error) {
       toast({
-        title: "Failed to Create Lesson",
-        description: "There was an error creating the lesson. Please try again.",
+        title: "Failed to Update Lesson",
+        description: "There was an error updating the lesson. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -121,26 +151,43 @@ export default function CreateLessonPage() {
     }
   };
 
-  const selectedCourse = courses.find(course => course.id === parseInt(form.watch('courseId')));
-
-  if (coursesError) {
+  if (lessonLoading) {
     return (
       <FormLayout
-        title="Create New Lesson"
-        description="Build engaging lessons for your students"
+        title="Edit Lesson"
+        description="Update lesson information"
         backUrl="/admin/lessons"
       >
-        <div className="text-center text-red-600 p-8">
-          <p>Failed to load courses. Please try again.</p>
+        <div className="flex items-center justify-center min-h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto"></div>
+            <p className="mt-2 text-amber-700">Loading lesson...</p>
+          </div>
         </div>
       </FormLayout>
     );
   }
 
+  if (lessonError || !lesson) {
+    return (
+      <FormLayout
+        title="Edit Lesson"
+        description="Update lesson information"
+        backUrl="/admin/lessons"
+      >
+        <div className="text-center text-red-600 p-8">
+          <p>Failed to load lesson. Please try again.</p>
+        </div>
+      </FormLayout>
+    );
+  }
+
+  const selectedCourse = courses.find(course => course.id === parseInt(form.watch('courseId')));
+
   return (
     <FormLayout
-      title="Create New Lesson"
-      description="Build engaging lessons for your students"
+      title={`Edit: ${lesson.title}`}
+      description="Update lesson information"
       backUrl="/admin/lessons"
     >
       <Form {...form}>
@@ -408,11 +455,11 @@ export default function CreateLessonPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <>Creating...</>
+                <>Updating...</>
               ) : (
                 <>
                   <BookOpen className="h-4 w-4 mr-2" />
-                  Create Lesson
+                  Update Lesson
                 </>
               )}
             </Button>

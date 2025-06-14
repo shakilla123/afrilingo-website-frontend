@@ -2,27 +2,38 @@
 import { httpClient } from '@/utils/httpClient';
 import { Course } from './courseService';
 
+export interface LessonContent {
+  id: number;
+  contentType: 'TEXT' | 'AUDIO' | 'IMAGE_OBJECT';
+  contentData: string;
+  mediaUrl: string;
+}
+
 export interface Lesson {
   id: number;
   title: string;
   description: string;
-  content: string;
-  lessonType: string;
+  type: 'AUDIO' | 'READING' | 'IMAGE_OBJECT';
   orderIndex: number;
-  duration: string;
   course: Course;
+  contents: LessonContent[];
+  required: boolean;
 }
 
 export interface CreateLessonRequest {
   title: string;
   description: string;
-  content: string;
-  lessonType: string;
+  type: 'AUDIO' | 'READING' | 'IMAGE_OBJECT';
   orderIndex: number;
-  duration: string;
   course: {
     id: number;
   };
+  contents: {
+    contentType: 'TEXT' | 'AUDIO' | 'IMAGE_OBJECT';
+    contentData: string;
+    mediaUrl?: string;
+  }[];
+  required: boolean;
 }
 
 export const lessonService = {
@@ -42,7 +53,7 @@ export const lessonService = {
     return await httpClient.get(`/lessons/course/${courseId}/ordered`);
   },
 
-  async getByType(lessonType: string): Promise<Lesson[]> {
+  async getByType(lessonType: 'AUDIO' | 'READING' | 'IMAGE_OBJECT'): Promise<Lesson[]> {
     return await httpClient.get(`/lessons/type/${lessonType}`);
   },
 
@@ -58,7 +69,7 @@ export const lessonService = {
     await httpClient.delete(`/lessons/${id}`);
   },
 
-  async reorderLessons(courseId: number, lessonIds: number[]): Promise<void> {
-    await httpClient.post(`/lessons/course/${courseId}/reorder`, { lessonIds });
+  async reorderLessons(courseId: number, lessonIds: number[]): Promise<Lesson[]> {
+    return await httpClient.post(`/lessons/course/${courseId}/reorder`, lessonIds);
   },
 };

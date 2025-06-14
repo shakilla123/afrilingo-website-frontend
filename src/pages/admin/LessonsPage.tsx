@@ -38,19 +38,21 @@ export default function LessonsPage() {
   };
 
   const handleDeleteLesson = async (lessonId: number, title: string) => {
-    try {
-      await lessonService.delete(lessonId);
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
-      toast({
-        title: "Lesson Deleted",
-        description: `"${title}" has been deleted successfully.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Delete Failed",
-        description: `Failed to delete "${title}". Please try again.`,
-        variant: "destructive",
-      });
+    if (window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+      try {
+        await lessonService.delete(lessonId);
+        queryClient.invalidateQueries({ queryKey: ['lessons'] });
+        toast({
+          title: "Lesson Deleted",
+          description: `"${title}" has been deleted successfully.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Delete Failed",
+          description: `Failed to delete "${title}". Please try again.`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -70,21 +72,19 @@ export default function LessonsPage() {
   };
 
   const getLessonTypeIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'video': return '🎥';
-      case 'audio': return '🎵';
-      case 'text': return '📖';
-      case 'interactive': return '🎯';
+    switch (type) {
+      case 'AUDIO': return '🎵';
+      case 'READING': return '📖';
+      case 'IMAGE_OBJECT': return '🖼️';
       default: return '📚';
     }
   };
 
   const getLessonTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'video': return 'bg-blue-100 text-blue-800';
-      case 'audio': return 'bg-purple-100 text-purple-800';
-      case 'text': return 'bg-green-100 text-green-800';
-      case 'interactive': return 'bg-orange-100 text-orange-800';
+    switch (type) {
+      case 'AUDIO': return 'bg-purple-100 text-purple-800';
+      case 'READING': return 'bg-green-100 text-green-800';
+      case 'IMAGE_OBJECT': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -143,15 +143,22 @@ export default function LessonsPage() {
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{getLessonTypeIcon(lesson.lessonType)}</span>
+                    <span className="text-2xl">{getLessonTypeIcon(lesson.type)}</span>
                     <div className="min-w-0 flex-1">
                       <CardTitle className="text-lg text-amber-900 truncate">{lesson.title}</CardTitle>
                       <p className="text-sm text-amber-600">Course: {lesson.course.title}</p>
                     </div>
                   </div>
-                  <Badge className={getLessonTypeColor(lesson.lessonType)}>
-                    {lesson.lessonType}
-                  </Badge>
+                  <div className="flex flex-col gap-2">
+                    <Badge className={getLessonTypeColor(lesson.type)}>
+                      {lesson.type}
+                    </Badge>
+                    {lesson.required && (
+                      <Badge variant="outline" className="text-xs border-red-300 text-red-700">
+                        Required
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -160,7 +167,7 @@ export default function LessonsPage() {
                   
                   <div className="flex items-center justify-between text-xs text-amber-600">
                     <span>Order: {lesson.orderIndex}</span>
-                    <span>{lesson.duration}</span>
+                    <span>{lesson.contents.length} content(s)</span>
                   </div>
                   
                   <div className="flex gap-2">
