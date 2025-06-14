@@ -17,10 +17,18 @@ export default function QuizzesPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: quizzes = [], isLoading, error } = useQuery({
+  const { data: quizzesData, isLoading, error } = useQuery({
     queryKey: ['quizzes'],
     queryFn: quizService.getAll,
   });
+
+  // Debug logging and ensure we have an array
+  console.log('Raw quizzes data:', quizzesData);
+  console.log('Type of quizzesData:', typeof quizzesData);
+  console.log('Is array:', Array.isArray(quizzesData));
+
+  // Ensure we always have an array to work with
+  const quizzes = Array.isArray(quizzesData) ? quizzesData : [];
 
   const handleCreateQuiz = () => {
     navigate('/admin/quizzes/new');
@@ -70,7 +78,7 @@ export default function QuizzesPage() {
     });
   };
 
-  // Filter quizzes based on search query
+  // Filter quizzes based on search query - now safe because quizzes is guaranteed to be an array
   const filteredQuizzes = quizzes.filter((quiz: Quiz) => {
     if (!searchQuery) return true;
     return quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
