@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { quizService } from '@/services/quizService';
-import { List, Clock, Target, BookOpen } from 'lucide-react';
+import { List, Target, BookOpen } from 'lucide-react';
 
 export default function ViewQuizPage() {
   const { id } = useParams<{ id: string }>();
@@ -15,12 +15,6 @@ export default function ViewQuizPage() {
   const { data: quiz, isLoading, error } = useQuery({
     queryKey: ['quiz', quizId],
     queryFn: () => quizService.getById(quizId),
-    enabled: !!quizId,
-  });
-
-  const { data: questions = [] } = useQuery({
-    queryKey: ['quiz-questions', quizId],
-    queryFn: () => quizService.getQuestions(quizId),
     enabled: !!quizId,
   });
 
@@ -84,7 +78,7 @@ export default function ViewQuizPage() {
         </Card>
 
         {/* Quiz Details */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           <Card className="border-amber-200">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-2">
@@ -93,7 +87,7 @@ export default function ViewQuizPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-amber-900">{questions.length}</p>
+              <p className="text-2xl font-bold text-amber-900">{quiz.questions?.length || 0}</p>
               <p className="text-sm text-amber-600">Total questions</p>
             </CardContent>
           </Card>
@@ -101,31 +95,18 @@ export default function ViewQuizPage() {
           <Card className="border-amber-200">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-amber-600" />
-                <CardTitle className="text-lg">Time Limit</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-amber-900">{quiz.timeLimit}</p>
-              <p className="text-sm text-amber-600">Minutes</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-amber-200">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-amber-600" />
-                <CardTitle className="text-lg">Passing Score</CardTitle>
+                <CardTitle className="text-lg">Minimum Passing Score</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-amber-900">{quiz.passingScore}%</p>
+              <p className="text-2xl font-bold text-amber-900">{quiz.minPassingScore}%</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Questions Preview */}
-        {questions.length > 0 && (
+        {quiz.questions && quiz.questions.length > 0 && (
           <Card className="border-amber-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -135,19 +116,33 @@ export default function ViewQuizPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {questions.slice(0, 3).map((question: any, index: number) => (
-                  <div key={index} className="p-4 border border-amber-200 rounded-lg">
+                {quiz.questions.slice(0, 3).map((question, index) => (
+                  <div key={question.id} className="p-4 border border-amber-200 rounded-lg">
                     <p className="font-medium text-amber-900 mb-2">
-                      {index + 1}. {question.questionText || 'Question preview not available'}
+                      {index + 1}. {question.questionText}
                     </p>
-                    <p className="text-sm text-amber-600">
-                      Type: {question.questionType || 'Multiple Choice'}
-                    </p>
+                    <div className="flex items-center justify-between text-sm text-amber-600">
+                      <span>Type: {question.questionType}</span>
+                      <span>Points: {question.points}</span>
+                    </div>
+                    {question.options && question.options.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {question.options.slice(0, 2).map((option, optIndex) => (
+                          <div key={option.id} className="text-sm text-amber-700 flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${option.correct ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                            {option.optionText}
+                          </div>
+                        ))}
+                        {question.options.length > 2 && (
+                          <p className="text-xs text-amber-500">... and {question.options.length - 2} more options</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
-                {questions.length > 3 && (
+                {quiz.questions.length > 3 && (
                   <p className="text-sm text-amber-600 text-center">
-                    ... and {questions.length - 3} more questions
+                    ... and {quiz.questions.length - 3} more questions
                   </p>
                 )}
               </div>

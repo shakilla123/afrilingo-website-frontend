@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
-import { List } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { List, Eye, Edit, Trash2, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { QuizCard } from '@/components/admin/quizzes/QuizCard';
 import { SearchFilter } from '@/components/admin/shared/SearchFilter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { quizService, Quiz } from '@/services/quizService';
@@ -25,39 +26,33 @@ export default function QuizzesPage() {
     navigate('/admin/quizzes/new');
   };
 
-  const handleViewResults = (quizId: number, title: string) => {
-    toast({
-      title: "Quiz Results",
-      description: `Viewing results for "${title}"`,
-    });
+  const handleViewQuiz = (quizId: number) => {
+    navigate(`/admin/quizzes/${quizId}/view`);
   };
 
-  const handleEditQuiz = (quizId: number, title: string) => {
-    toast({
-      title: "Edit Quiz",
-      description: `Editing "${title}"`,
-    });
+  const handleEditQuiz = (quizId: number) => {
+    navigate(`/admin/quizzes/${quizId}/edit`);
   };
 
   const handleDeleteQuiz = async (quizId: number, title: string) => {
-    try {
-      await quizService.delete(quizId);
-      queryClient.invalidateQueries({ queryKey: ['quizzes'] });
-      toast({
-        title: "Quiz Deleted",
-        description: `"${title}" has been deleted successfully.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Delete Failed",
-        description: `Failed to delete "${title}". Please try again.`,
-        variant: "destructive",
-      });
+    if (window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+      try {
+        await quizService.delete(quizId);
+        queryClient.invalidateQueries({ queryKey: ['quizzes'] });
+        toast({
+          title: "Quiz Deleted",
+          description: `"${title}" has been deleted successfully.`,
+        });
+        window.location.reload();
+      } catch (error) {
+        console.error('Delete quiz error:', error);
+        toast({
+          title: "Delete Failed",
+          description: `Failed to delete "${title}". Please try again.`,
+          variant: "destructive",
+        });
+      }
     }
-  };
-
-  const handleViewQuiz = (quizId: number) => {
-    navigate(`/admin/quizzes/${quizId}/view`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -74,6 +69,14 @@ export default function QuizzesPage() {
       description: "Opening filter options...",
     });
   };
+
+  // Filter quizzes based on search query
+  const filteredQuizzes = quizzes.filter((quiz: Quiz) => {
+    if (!searchQuery) return true;
+    return quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           quiz.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           quiz.lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   if (isLoading) {
     return (
@@ -97,16 +100,6 @@ export default function QuizzesPage() {
       </AdminLayout>
     );
   }
-
-  // Transform quiz data to match the expected format for QuizCard
-  const transformedQuizzes = quizzes.map((quiz: Quiz) => ({
-    id: quiz.id,
-    title: quiz.title,
-    questions: 0, // Will need to fetch this separately or include in API
-    attempts: 0, // Will need to fetch from statistics
-    avgScore: 0, // Will need to fetch from statistics
-    status: "Published" // Default status
-  }));
 
   return (
     <AdminLayout>
@@ -134,17 +127,83 @@ export default function QuizzesPage() {
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {transformedQuizzes.map((quiz) => (
-            <QuizCard
-              key={quiz.id}
-              quiz={quiz}
-              onViewQuiz={() => handleViewQuiz(quiz.id)}
-              onViewResults={handleViewResults}
-              onEditQuiz={handleEditQuiz}
-              onDeleteQuiz={handleDeleteQuiz}
-            />
+          {filteredQuizzes.map((quiz: Quiz) => (
+            <Card key={quiz.id} className="border-amber-200 hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🧠</span>
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-lg text-amber-900 truncate">{quiz.title}</CardTitle>
+                      <p className="text-sm text-amber-600">Lesson: {quiz.lesson.title}</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-800">
+                    Quiz
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-amber-700 line-clamp-2">{quiz.description}</p>
+                  
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                      <div className="text-xl font-bold text-amber-900">
+                        {quiz.questions?.length || 0}
+                      </div>
+                      <div className="text-xs text-amber-600">Questions</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold text-amber-900 flex items-center justify-center gap-1">
+                        <Target className="h-4 w-4" />
+                        {quiz.minPassingScore}%
+                      </div>
+                      <div className="text-xs text-amber-600">Min Score</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      onClick={() => handleViewQuiz(quiz.id)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      onClick={() => handleEditQuiz(quiz.id)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-red-300 text-red-700 hover:bg-red-100"
+                      onClick={() => handleDeleteQuiz(quiz.id, quiz.title)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
+
+        {filteredQuizzes.length === 0 && quizzes.length > 0 && (
+          <div className="text-center py-12">
+            <List className="h-12 w-12 text-amber-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-amber-900 mb-2">No quizzes found</h3>
+            <p className="text-amber-600 mb-6">Try adjusting your search terms.</p>
+          </div>
+        )}
 
         {quizzes.length === 0 && (
           <div className="text-center py-12">

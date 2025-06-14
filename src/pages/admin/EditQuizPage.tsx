@@ -7,11 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { List } from 'lucide-react';
 import { lessonService } from '@/services/lessonService';
-import { quizService, CreateQuizRequest } from '@/services/quizService';
+import { quizService, UpdateQuizRequest } from '@/services/quizService';
 
 interface QuizFormData {
   title: string;
@@ -20,27 +20,23 @@ interface QuizFormData {
   description: string;
 }
 
-export default function CreateQuizPage() {
+export default function EditQuizPage() {
+  const { id } = useParams<{ id: string }>();
+  const quizId = parseInt(id || '0');
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log('CreateQuizPage: Component rendered');
+  const { data: quiz, isLoading: quizLoading, error: quizError } = useQuery({
+    queryKey: ['quiz', quizId],
+    queryFn: () => quizService.getById(quizId),
+    enabled: !!quizId,
+  });
 
   const { data: lessons = [], isLoading: lessonsLoading, error: lessonsError } = useQuery({
     queryKey: ['lessons'],
-    queryFn: async () => {
-      console.log('CreateQuizPage: Fetching lessons...');
-      try {
-        const result = await lessonService.getAll();
-        console.log('CreateQuizPage: Lessons fetched successfully:', result);
-        return result;
-      } catch (error) {
-        console.error('CreateQuizPage: Error fetching lessons:', error);
-        throw error;
-      }
-    },
+    queryFn: lessonService.getAll,
   });
 
   const form = useForm<QuizFormData>({
@@ -52,12 +48,25 @@ export default function CreateQuizPage() {
     },
   });
 
+  // Update form when quiz data is loaded
+  React.useEffect(() => {
+    if (quiz) {
+      form.reset({
+        title: quiz.title,
+        lessonId: quiz.lesson.id.toString(),
+        minPassingScore: quiz.minPassingScore.toString(),
+        description: quiz.description,
+      });
+    }
+  }, [quiz, form]);
+
   const onSubmit = async (data: QuizFormData) => {
-    console.log('CreateQuizPage: Form submitted with data:', data);
-    setIsSubmitting(true);
+    if (!quiz) return;
     
+    setIsSubmitting(true);
     try {
-      const quizData: CreateQuizRequest = {
+      const quizData: UpdateQuizRequest = {
+        id: quiz.id,
         title: data.title,
         description: data.description,
         minPassingScore: parseInt(data.minPassingScore),
@@ -66,23 +75,21 @@ export default function CreateQuizPage() {
         },
       };
 
-      console.log('CreateQuizPage: Sending quiz creation request:', quizData);
-      const result = await quizService.create(quizData);
-      console.log('CreateQuizPage: Quiz created successfully:', result);
-      
+      await quizService.update(quiz.id, quizData);
       queryClient.invalidateQueries({ queryKey: ['quizzes'] });
+      queryClient.invalidateQueries({ queryKey: ['quiz', quizId] });
       
       toast({
-        title: "Quiz Created Successfully!",
-        description: `"${data.title}" has been created and is ready for questions.`,
+        title: "Quiz Updated Successfully!",
+        description: `"${data.title}" has been updated.`,
       });
       
       navigate('/admin/quizzes');
     } catch (error) {
-      console.error('CreateQuizPage: Failed to create quiz:', error);
+      console.error('EditQuizPage: Failed to update quiz:', error);
       toast({
-        title: "Failed to Create Quiz",
-        description: "There was an error creating the quiz. Please try again.",
+        title: "Failed to Update Quiz",
+        description: "There was an error updating the quiz. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -92,25 +99,32 @@ export default function CreateQuizPage() {
 
   const selectedLesson = lessons.find(lesson => lesson.id === parseInt(form.watch('lessonId')));
 
-  console.log('CreateQuizPage: Current state:', {
-    lessonsLoading,
-    lessonsError,
-    lessonsCount: lessons.length,
-    selectedLesson,
-    isSubmitting
-  });
-
-  if (lessonsError) {
-    console.error('CreateQuizPage: Lessons error:', lessonsError);
+  if (quizLoading || lessonsLoading) {
     return (
       <FormLayout
-        title="Create New Quiz"
-        description="Build interactive quizzes to test student knowledge"
+        title="Edit Quiz"
+        description="Update quiz details and settings"
+        backUrl="/admin/quizzes"
+      >
+        <div className="flex items-center justify-center min-h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto"></div>
+            <p className="mt-2 text-amber-700">Loading quiz...</p>
+          </div>
+        </div>
+      </FormLayout>
+    );
+  }
+
+  if (quizError || lessonsError || !quiz) {
+    return (
+      <FormLayout
+        title="Edit Quiz"
+        description="Update quiz details and settings"
         backUrl="/admin/quizzes"
       >
         <div className="text-center text-red-600 p-8">
-          <p>Failed to load lessons. Please try again.</p>
-          <p className="text-sm mt-2">Check the console for more details.</p>
+          <p>Failed to load quiz data. Please try again.</p>
         </div>
       </FormLayout>
     );
@@ -118,8 +132,8 @@ export default function CreateQuizPage() {
 
   return (
     <FormLayout
-      title="Create New Quiz"
-      description="Build interactive quizzes to test student knowledge"
+      title="Edit Quiz"
+      description="Update quiz details and settings"
       backUrl="/admin/quizzes"
     >
       <Form {...form}>
@@ -151,10 +165,10 @@ export default function CreateQuizPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Lesson</FormLabel>
-                  <Select onValueChange={field.onChange} disabled={lessonsLoading}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="border-amber-300 focus:border-amber-500">
-                        <SelectValue placeholder={lessonsLoading ? "Loading lessons..." : "Select lesson"} />
+                        <SelectValue placeholder="Select lesson" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -244,11 +258,11 @@ export default function CreateQuizPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <>Creating...</>
+                <>Updating...</>
               ) : (
                 <>
                   <List className="h-4 w-4 mr-2" />
-                  Create Quiz
+                  Update Quiz
                 </>
               )}
             </Button>
