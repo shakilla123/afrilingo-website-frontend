@@ -18,23 +18,28 @@ export interface CreateLanguageRequest {
 
 export const languageService = {
   async getAll(): Promise<Language[]> {
-    return await httpClient.get('/languages');
+    const response = await httpClient.get('/languages');
+    return response.data || response; // Extract data property or fallback to response if it's already an array
   },
 
   async getById(id: number): Promise<Language> {
-    return await httpClient.get(`/languages/${id}`);
+    const response = await httpClient.get(`/languages/${id}`);
+    return response.data || response;
   },
 
   async getByCode(code: string): Promise<Language> {
-    return await httpClient.get(`/languages/code/${code}`);
+    const response = await httpClient.get(`/languages/code/${code}`);
+    return response.data || response;
   },
 
   async create(data: CreateLanguageRequest): Promise<Language> {
-    return await httpClient.post('/languages', data);
+    const response = await httpClient.post('/languages', data);
+    return response.data || response;
   },
 
   async update(id: number, data: Partial<CreateLanguageRequest>): Promise<Language> {
-    return await httpClient.put(`/languages/${id}`, data);
+    const response = await httpClient.put(`/languages/${id}`, data);
+    return response.data || response;
   },
 
   async delete(id: number): Promise<void> {
