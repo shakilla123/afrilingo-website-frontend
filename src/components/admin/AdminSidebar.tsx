@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { LayoutDashboard, Book, Settings, User, Search, List, Users, BookOpen, Trophy, Bell, Globe } from 'lucide-react';
 import {
@@ -32,7 +31,7 @@ const menuItems = [
     color: "from-emerald-500 to-emerald-600"
   },
   {
-    title: "Kinyarwanda Courses",
+    title: "Courses",
     url: "/admin/courses",
     icon: Book,
     description: "Rwanda Language",
