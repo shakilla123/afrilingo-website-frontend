@@ -38,31 +38,38 @@ export interface CreateLessonRequest {
 
 export const lessonService = {
   async getAll(): Promise<Lesson[]> {
-    return await httpClient.get('/lessons');
+    const response = await httpClient.get<any>('/lessons');
+    return response.data || response;
   },
 
   async getById(id: number): Promise<Lesson> {
-    return await httpClient.get(`/lessons/${id}`);
+    const response = await httpClient.get<any>(`/lessons/${id}`);
+    return response.data || response;
   },
 
   async getByCourseId(courseId: number): Promise<Lesson[]> {
-    return await httpClient.get(`/lessons/course/${courseId}`);
+    const response = await httpClient.get<any>(`/lessons/course/${courseId}`);
+    return response.data || response;
   },
 
   async getOrderedByCourseId(courseId: number): Promise<Lesson[]> {
-    return await httpClient.get(`/lessons/course/${courseId}/ordered`);
+    const response = await httpClient.get<any>(`/lessons/course/${courseId}/ordered`);
+    return response.data || response;
   },
 
   async getByType(lessonType: 'AUDIO' | 'READING' | 'IMAGE_OBJECT'): Promise<Lesson[]> {
-    return await httpClient.get(`/lessons/type/${lessonType}`);
+    const response = await httpClient.get<any>(`/lessons/type/${lessonType}`);
+    return response.data || response;
   },
 
   async create(data: CreateLessonRequest): Promise<Lesson> {
-    return await httpClient.post('/lessons', data);
+    const response = await httpClient.post<any>('/lessons', data);
+    return response.data || response;
   },
 
   async update(id: number, data: Partial<CreateLessonRequest>): Promise<Lesson> {
-    return await httpClient.put(`/lessons/${id}`, data);
+    const response = await httpClient.put<any>(`/lessons/${id}`, data);
+    return response.data || response;
   },
 
   async delete(id: number): Promise<void> {
@@ -70,6 +77,7 @@ export const lessonService = {
   },
 
   async reorderLessons(courseId: number, lessonIds: number[]): Promise<Lesson[]> {
-    return await httpClient.post(`/lessons/course/${courseId}/reorder`, lessonIds);
+    const response = await httpClient.post<any>(`/lessons/course/${courseId}/reorder`, lessonIds);
+    return response.data || response;
   },
 };

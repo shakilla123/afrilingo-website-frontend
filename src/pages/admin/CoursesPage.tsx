@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { courseService, Course } from '@/services/courseService';
 
 export default function CoursesPage() {
@@ -19,25 +19,6 @@ export default function CoursesPage() {
   const { data: courses = [], isLoading, error } = useQuery({
     queryKey: ['courses'],
     queryFn: courseService.getAll,
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => courseService.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast({
-        title: "Course Deleted",
-        description: "The course has been deleted successfully.",
-      });
-    },
-    onError: (error) => {
-      console.error('Delete course error:', error);
-      toast({
-        title: "Delete Failed",
-        description: "Failed to delete the course. Please try again.",
-        variant: "destructive",
-      });
-    },
   });
 
   const handleSearch = (e: React.FormEvent) => {
@@ -54,7 +35,21 @@ export default function CoursesPage() {
 
   const handleDeleteCourse = async (courseId: number, title: string) => {
     if (window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
-      deleteMutation.mutate(courseId);
+      try {
+        await courseService.delete(courseId);
+        queryClient.invalidateQueries({ queryKey: ['courses'] });
+        toast({
+          title: "Course Deleted",
+          description: `"${title}" has been deleted successfully.`,
+        });
+      } catch (error) {
+        console.error('Delete course error:', error);
+        toast({
+          title: "Delete Failed",
+          description: `Failed to delete "${title}". Please try again.`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -192,7 +187,6 @@ export default function CoursesPage() {
                       size="sm" 
                       className="border-red-300 text-red-700 hover:bg-red-100"
                       onClick={() => handleDeleteCourse(course.id, course.title)}
-                      disabled={deleteMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

@@ -30,11 +30,8 @@ export default function LessonsPage() {
     navigate(`/admin/lessons/${lessonId}/view`);
   };
 
-  const handleEditLesson = (lessonId: number, title: string) => {
-    toast({
-      title: "Edit Lesson",
-      description: `Editing "${title}" - Edit functionality coming soon`,
-    });
+  const handleEditLesson = (lessonId: number) => {
+    navigate(`/admin/lessons/${lessonId}/edit`);
   };
 
   const handleDeleteLesson = async (lessonId: number, title: string) => {
@@ -47,6 +44,7 @@ export default function LessonsPage() {
           description: `"${title}" has been deleted successfully.`,
         });
       } catch (error) {
+        console.error('Delete lesson error:', error);
         toast({
           title: "Delete Failed",
           description: `Failed to delete "${title}". Please try again.`,
@@ -184,7 +182,7 @@ export default function LessonsPage() {
                       variant="outline" 
                       size="sm" 
                       className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
-                      onClick={() => handleEditLesson(lesson.id, lesson.title)}
+                      onClick={() => handleEditLesson(lesson.id)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
