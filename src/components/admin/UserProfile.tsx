@@ -24,10 +24,7 @@ export function UserProfile() {
   };
 
   const handleEditProfile = () => {
-    toast({
-      title: "Edit Profile",
-      description: "Profile editing form coming soon!",
-    });
+    navigate('/admin/settings');
   };
 
   const handleLogout = () => {

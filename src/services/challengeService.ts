@@ -79,15 +79,15 @@ export interface PaginatedChallengesResponse {
 
 export const challengeService = {
   async getAll(): Promise<Challenge[]> {
-    return await httpClient.get<Challenge[]>('/quizzes');
+    return await httpClient.get<Challenge[]>('/challenges');
   },
 
   async getById(id: number): Promise<Challenge> {
-    return await httpClient.get<Challenge>(`/quizzes/${id}`);
+    return await httpClient.get<Challenge>(`/challenges/${id}`);
   },
 
   async getByCourseId(courseId: number): Promise<Challenge[]> {
-    return await httpClient.get<Challenge[]>(`/quizzes/lesson/${courseId}`);
+    return await httpClient.get<Challenge[]>(`/challenges/course/${courseId}`);
   },
 
   async getPaginated(params: PaginatedChallengesRequest): Promise<PaginatedChallengesResponse> {
@@ -102,34 +102,34 @@ export const challengeService = {
       });
     }
 
-    return await httpClient.get<PaginatedChallengesResponse>(`/quizzes/paginated?${queryParams}`);
+    return await httpClient.get<PaginatedChallengesResponse>(`/challenges/paginated?${queryParams}`);
   },
 
   async create(data: CreateChallengeRequest): Promise<Challenge> {
-    return await httpClient.post<Challenge>('/quizzes', data);
+    return await httpClient.post<Challenge>('/challenges', data);
   },
 
   async update(id: number, data: UpdateChallengeRequest): Promise<Challenge> {
-    return await httpClient.put<Challenge>(`/quizzes/${id}`, data);
+    return await httpClient.put<Challenge>(`/challenges/${id}`, data);
   },
 
   async delete(id: number): Promise<void> {
-    await httpClient.delete<void>(`/quizzes/${id}`);
+    await httpClient.delete<void>(`/challenges/${id}`);
   },
 
   async getQuestions(id: number): Promise<ChallengeQuestion[]> {
-    return await httpClient.get<ChallengeQuestion[]>(`/quizzes/${id}/questions`);
+    return await httpClient.get<ChallengeQuestion[]>(`/challenges/${id}/questions`);
   },
 
   async addQuestion(id: number, questionData: CreateChallengeQuestionRequest): Promise<Challenge> {
-    return await httpClient.post<Challenge>(`/quizzes/${id}/questions`, questionData);
+    return await httpClient.post<Challenge>(`/challenges/${id}/questions`, questionData);
   },
 
   async removeQuestion(challengeId: number, questionId: number): Promise<Challenge> {
-    return await httpClient.delete<Challenge>(`/quizzes/${challengeId}/questions/${questionId}`);
+    return await httpClient.delete<Challenge>(`/challenges/${challengeId}/questions/${questionId}`);
   },
 
   async getStatistics(id: number): Promise<Record<string, any>> {
-    return await httpClient.get<Record<string, any>>(`/quizzes/${id}/statistics`);
+    return await httpClient.get<Record<string, any>>(`/challenges/${id}/statistics`);
   },
 };

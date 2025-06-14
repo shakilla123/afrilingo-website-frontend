@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +19,8 @@ import {
 export function AdminHeader() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,32 +33,24 @@ export function AdminHeader() {
   };
 
   const handleNotificationClick = () => {
-    toast({
-      title: "Notifications",
-      description: "You have 3 new notifications!",
-    });
+    navigate('/admin/notifications');
   };
 
   const handleSettingsClick = () => {
-    toast({
-      title: "Settings",
-      description: "Opening settings panel...",
-    });
+    navigate('/admin/settings');
   };
 
   const handleLogout = () => {
+    logout();
+    navigate('/');
     toast({
-      title: "Logout",
-      description: "Logging out...",
-      variant: "destructive",
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
     });
   };
 
   const handleProfileClick = () => {
-    toast({
-      title: "Profile",
-      description: "Opening profile settings...",
-    });
+    navigate('/admin/profile');
   };
 
   return (
@@ -119,7 +115,7 @@ export function AdminHeader() {
                 <User className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 bg-white border-amber-200 z-50">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleProfileClick}>
