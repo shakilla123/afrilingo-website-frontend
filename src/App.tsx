@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,6 +27,7 @@ import CreateChallengePage from "./pages/admin/CreateChallengePage";
 import LanguagesPage from "./pages/admin/LanguagesPage";
 import CreateLanguagePage from "./pages/admin/CreateLanguagePage";
 import EditLanguagePage from "./pages/admin/EditLanguagePage";
+import ViewLanguagePage from "./pages/admin/ViewLanguagePage";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -68,6 +68,11 @@ const App = () => {
               <Route path="/admin/languages/:id/edit" element={
                 <ProtectedRoute>
                   <EditLanguagePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/languages/:id/view" element={
+                <ProtectedRoute>
+                  <ViewLanguagePage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/courses" element={
