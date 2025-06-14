@@ -1,46 +1,77 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Plus, Eye, Edit, Trash2, Target } from 'lucide-react';
+import { Trophy, Eye, Edit, Trash2, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SearchFilter } from '@/components/admin/shared/SearchFilter';
+import { AdvancedSearchFilter } from '@/components/admin/shared/AdvancedSearchFilter';
+import { useSearchAndFilter } from '@/hooks/useSearchAndFilter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { challengeService, Challenge } from '@/services/challengeService';
 import { useNavigate } from 'react-router-dom';
 
 const ChallengesPage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  console.log('ChallengesPage: Component rendered');
+  const {
+    searchQuery,
+    filters,
+    handleSearchChange,
+    handleFilterChange,
+    handleClearFilters,
+    handleSearch,
+  } = useSearchAndFilter();
 
-  const { data: challengesData, isLoading, error } = useQuery({
+  const { data: allChallenges, isLoading, error } = useQuery({
     queryKey: ['challenges'],
     queryFn: async () => {
-      console.log('ChallengesPage: Fetching challenges...');
       try {
         const result = await challengeService.getAll();
-        console.log('ChallengesPage: Challenges fetched successfully:', result);
-        return result;
+        return Array.isArray(result) ? result : [];
       } catch (error) {
-        console.error('ChallengesPage: Error fetching challenges:', error);
-        throw error;
+        console.error('Error fetching challenges:', error);
+        return [];
       }
     },
   });
 
-  // Debug logging and ensure we have an array
-  console.log('Raw challenges data:', challengesData);
-  console.log('Type of challengesData:', typeof challengesData);
-  console.log('Is array:', Array.isArray(challengesData));
+  const challenges = Array.isArray(allChallenges) ? allChallenges : [];
 
-  // Ensure we always have an array to work with
-  const challenges = Array.isArray(challengesData) ? challengesData : [];
+  // Filter challenges based on search query and filters
+  const filteredChallenges = challenges.filter((challenge: Challenge) => {
+    // Search filter
+    const matchesSearch = !searchQuery || 
+      challenge.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      challenge.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      challenge.course.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Difficulty filter
+    const matchesDifficulty = !filters.difficulty || 
+      (challenge.difficulty && challenge.difficulty.toLowerCase() === filters.difficulty.toLowerCase());
+
+    // Category filter (using course as category)
+    const matchesCategory = !filters.category || 
+      challenge.course.title.toLowerCase().includes(filters.category.toLowerCase());
+
+    return matchesSearch && matchesDifficulty && matchesCategory;
+  });
+
+  const filterOptions = {
+    difficulty: [
+      { value: 'easy', label: 'Easy' },
+      { value: 'medium', label: 'Medium' },
+      { value: 'hard', label: 'Hard' }
+    ],
+    category: [
+      { value: 'kinyarwanda', label: 'Kinyarwanda' },
+      { value: 'english', label: 'English' },
+      { value: 'french', label: 'French' }
+    ]
+  };
 
   const handleCreateChallenge = () => {
     navigate('/admin/challenges/new');
@@ -74,29 +105,6 @@ const ChallengesPage = () => {
       }
     }
   };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Search Challenges",
-      description: searchQuery ? `Searching for: "${searchQuery}"` : "Please enter a search term",
-    });
-  };
-
-  const handleFilter = () => {
-    toast({
-      title: "Filter Challenges",
-      description: "Opening filter options...",
-    });
-  };
-
-  // Filter challenges based on search query - now safe because challenges is guaranteed to be an array
-  const filteredChallenges = challenges.filter((challenge: Challenge) => {
-    if (!searchQuery) return true;
-    return challenge.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           challenge.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           challenge.course.title.toLowerCase().includes(searchQuery.toLowerCase());
-  });
 
   if (isLoading) {
     return (
@@ -147,12 +155,15 @@ const ChallengesPage = () => {
           </Button>
         </div>
 
-        <SearchFilter
+        <AdvancedSearchFilter
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           onSearch={handleSearch}
-          onFilter={handleFilter}
           placeholder="Search challenges..."
+          filterOptions={filterOptions}
+          activeFilters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -230,7 +241,14 @@ const ChallengesPage = () => {
           <div className="text-center py-12">
             <Trophy className="h-12 w-12 text-amber-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-amber-900 mb-2">No challenges found</h3>
-            <p className="text-amber-600 mb-6">Try adjusting your search terms.</p>
+            <p className="text-amber-600 mb-6">Try adjusting your search terms or filters.</p>
+            <Button 
+              onClick={handleClearFilters}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Clear Filters
+            </Button>
           </div>
         )}
 

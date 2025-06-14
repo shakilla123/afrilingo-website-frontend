@@ -1,64 +1,70 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { languageService, Language } from '@/services/languageService';
+import { AdvancedSearchFilter } from '@/components/admin/shared/AdvancedSearchFilter';
+import { useSearchAndFilter } from '@/hooks/useSearchAndFilter';
 
 export default function LanguagesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: languages = [], isLoading, error } = useQuery({
+  const {
+    searchQuery,
+    filters,
+    handleSearchChange,
+    handleFilterChange,
+    handleClearFilters,
+    handleSearch,
+  } = useSearchAndFilter();
+
+  const { data: allLanguages = [], isLoading, error } = useQuery({
     queryKey: ['languages'],
     queryFn: languageService.getAll,
   });
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Search Languages",
-      description: searchQuery ? `Searching for: "${searchQuery}"` : "Please enter a search term",
-    });
-  };
+  // Filter languages based on search query
+  const filteredLanguages = allLanguages.filter((language: Language) => {
+    const matchesSearch = !searchQuery ||
+      language.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      language.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      language.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesSearch;
+  });
 
   const handleEditLanguage = (languageId: number) => {
     navigate(`/admin/languages/${languageId}/edit`);
   };
 
   const handleDeleteLanguage = async (languageId: number, name: string) => {
-    try {
-      await languageService.delete(languageId);
-      queryClient.invalidateQueries({ queryKey: ['languages'] });
-      toast({
-        title: "Language Deleted",
-        description: `"${name}" has been deleted successfully.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Delete Failed",
-        description: `Failed to delete "${name}". Please try again.`,
-        variant: "destructive",
-      });
+    if (window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
+      try {
+        await languageService.delete(languageId);
+        queryClient.invalidateQueries({ queryKey: ['languages'] });
+        toast({
+          title: "Language Deleted",
+          description: `"${name}" has been deleted successfully.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Delete Failed",
+          description: `Failed to delete "${name}". Please try again.`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const handleViewLanguage = (languageId: number) => {
     navigate(`/admin/languages/${languageId}/view`);
-  };
-
-  const handleFilter = () => {
-    toast({
-      title: "Filter Languages",
-      description: "Opening filter options...",
-    });
   };
 
   if (isLoading) {
@@ -87,7 +93,6 @@ export default function LanguagesPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-amber-900">Languages</h1>
@@ -101,42 +106,19 @@ export default function LanguagesPage() {
           </Link>
         </div>
 
-        {/* Search and Filters */}
-        <Card className="border-amber-200">
-          <CardContent className="p-6">
-            <form onSubmit={handleSearch} className="flex gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
-                <Input 
-                  placeholder="Search languages..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-amber-300 focus:border-amber-500"
-                />
-              </div>
-              <Button 
-                type="submit"
-                variant="outline" 
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-              >
-                Search
-              </Button>
-              <Button 
-                type="button"
-                variant="outline" 
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                onClick={handleFilter}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <AdvancedSearchFilter
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onSearch={handleSearch}
+          placeholder="Search languages..."
+          showFilters={false}
+          activeFilters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
+        />
 
-        {/* Languages Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {languages.map((language: Language) => (
+          {filteredLanguages.map((language: Language) => (
             <Card key={language.id} className="border-amber-200 hover:shadow-lg transition-shadow">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
@@ -187,7 +169,22 @@ export default function LanguagesPage() {
           ))}
         </div>
 
-        {languages.length === 0 && (
+        {filteredLanguages.length === 0 && allLanguages.length > 0 && (
+          <div className="text-center py-12">
+            <div className="h-12 w-12 text-amber-400 mx-auto mb-4">🌍</div>
+            <h3 className="text-lg font-medium text-amber-900 mb-2">No languages found</h3>
+            <p className="text-amber-600 mb-6">Try adjusting your search terms.</p>
+            <Button 
+              onClick={handleClearFilters}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Clear Search
+            </Button>
+          </div>
+        )}
+
+        {allLanguages.length === 0 && (
           <div className="text-center py-12">
             <div className="h-12 w-12 text-amber-400 mx-auto mb-4">🌍</div>
             <h3 className="text-lg font-medium text-amber-900 mb-2">No languages yet</h3>

@@ -1,31 +1,66 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { courseService, Course } from '@/services/courseService';
+import { AdvancedSearchFilter } from '@/components/admin/shared/AdvancedSearchFilter';
+import { useSearchAndFilter } from '@/hooks/useSearchAndFilter';
 
 export default function CoursesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: courses = [], isLoading, error } = useQuery({
+  const {
+    searchQuery,
+    filters,
+    handleSearchChange,
+    handleFilterChange,
+    handleClearFilters,
+    handleSearch,
+  } = useSearchAndFilter();
+
+  const { data: allCourses = [], isLoading, error } = useQuery({
     queryKey: ['courses'],
     queryFn: courseService.getAll,
   });
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Search Courses",
-      description: searchQuery ? `Searching for: "${searchQuery}"` : "Please enter a search term",
-    });
+  // Filter courses based on search query and filters
+  const filteredCourses = allCourses.filter((course: Course) => {
+    // Search filter
+    const matchesSearch = !searchQuery || 
+      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.language.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.level.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Status filter
+    const matchesStatus = !filters.status || 
+      (filters.status === 'active' && course.active) ||
+      (filters.status === 'inactive' && !course.active);
+
+    // Level filter (using difficulty as level)
+    const matchesLevel = !filters.difficulty || 
+      course.level.toLowerCase() === filters.difficulty.toLowerCase();
+
+    return matchesSearch && matchesStatus && matchesLevel;
+  });
+
+  const filterOptions = {
+    status: [
+      { value: 'active', label: 'Published' },
+      { value: 'inactive', label: 'Draft' }
+    ],
+    difficulty: [
+      { value: 'beginner', label: 'Beginner' },
+      { value: 'intermediate', label: 'Intermediate' },
+      { value: 'advanced', label: 'Advanced' }
+    ]
   };
 
   const handleEditCourse = (courseId: number) => {
@@ -41,7 +76,6 @@ export default function CoursesPage() {
           title: "Course Deleted",
           description: `"${title}" has been deleted successfully.`,
         });
-        // Refresh the page immediately
         window.location.reload();
       } catch (error) {
         console.error('Delete course error:', error);
@@ -56,13 +90,6 @@ export default function CoursesPage() {
 
   const handleViewCourse = (courseId: number) => {
     navigate(`/admin/courses/${courseId}/view`);
-  };
-
-  const handleFilter = () => {
-    toast({
-      title: "Filter Courses",
-      description: "Opening filter options...",
-    });
   };
 
   if (isLoading) {
@@ -91,7 +118,6 @@ export default function CoursesPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-amber-900">Courses</h1>
@@ -105,42 +131,19 @@ export default function CoursesPage() {
           </Link>
         </div>
 
-        {/* Search and Filters */}
-        <Card className="border-amber-200">
-          <CardContent className="p-6">
-            <form onSubmit={handleSearch} className="flex gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
-                <Input 
-                  placeholder="Search courses..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-amber-300 focus:border-amber-500"
-                />
-              </div>
-              <Button 
-                type="submit"
-                variant="outline" 
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-              >
-                Search
-              </Button>
-              <Button 
-                type="button"
-                variant="outline" 
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                onClick={handleFilter}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <AdvancedSearchFilter
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onSearch={handleSearch}
+          placeholder="Search courses..."
+          filterOptions={filterOptions}
+          activeFilters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
+        />
 
-        {/* Courses Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course: Course) => (
+          {filteredCourses.map((course: Course) => (
             <Card key={course.id} className="border-amber-200 hover:shadow-lg transition-shadow">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
@@ -198,7 +201,22 @@ export default function CoursesPage() {
           ))}
         </div>
 
-        {courses.length === 0 && (
+        {filteredCourses.length === 0 && allCourses.length > 0 && (
+          <div className="text-center py-12">
+            <div className="h-12 w-12 text-amber-400 mx-auto mb-4">📚</div>
+            <h3 className="text-lg font-medium text-amber-900 mb-2">No courses found</h3>
+            <p className="text-amber-600 mb-6">Try adjusting your search terms or filters.</p>
+            <Button 
+              onClick={handleClearFilters}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
+
+        {allCourses.length === 0 && (
           <div className="text-center py-12">
             <div className="h-12 w-12 text-amber-400 mx-auto mb-4">📚</div>
             <h3 className="text-lg font-medium text-amber-900 mb-2">No courses yet</h3>

@@ -1,13 +1,14 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserStats } from '@/components/admin/users/UserStats';
 import { UsersTable } from '@/components/admin/users/UsersTable';
+import { AdvancedSearchFilter } from '@/components/admin/shared/AdvancedSearchFilter';
+import { useSearchAndFilter } from '@/hooks/useSearchAndFilter';
 
 // Mock user data
 const mockUsers = [
@@ -69,15 +70,47 @@ const mockUsers = [
 ];
 
 const UsersPage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [users] = useState(mockUsers);
   const { toast } = useToast();
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const {
+    searchQuery,
+    filters,
+    handleSearchChange,
+    handleFilterChange,
+    handleClearFilters,
+    handleSearch,
+  } = useSearchAndFilter();
+
+  // Filter users based on search query and filters
+  const filteredUsers = mockUsers.filter(user => {
+    // Search filter
+    const matchesSearch = !searchQuery ||
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Status filter
+    const matchesStatus = !filters.status ||
+      user.status.toLowerCase() === filters.status.toLowerCase();
+
+    // Role filter
+    const matchesRole = !filters.category ||
+      user.role.toLowerCase() === filters.category.toLowerCase();
+
+    return matchesSearch && matchesStatus && matchesRole;
+  });
+
+  const filterOptions = {
+    status: [
+      { value: 'active', label: 'Active' },
+      { value: 'inactive', label: 'Inactive' }
+    ],
+    category: [
+      { value: 'student', label: 'Student' },
+      { value: 'instructor', label: 'Instructor' },
+      { value: 'moderator', label: 'Moderator' }
+    ]
+  };
 
   const handleUserAction = (action: string, user: any) => {
     toast({
@@ -89,7 +122,6 @@ const UsersPage = () => {
   return (
     <AdminLayout>
       <div className="space-y-6 animate-fade-in">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-3xl font-bold text-amber-900">User Management</h2>
@@ -101,30 +133,35 @@ const UsersPage = () => {
           </Button>
         </div>
 
-        {/* Stats Cards */}
-        <UserStats users={users} />
+        <UserStats users={mockUsers} />
 
-        {/* Search and Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-amber-900">Search Users</CardTitle>
-            <CardDescription>Find and manage Kinyarwanda learners</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-amber-600" />
-              <Input
-                placeholder="Search by name, email, or role..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-amber-300 focus:border-amber-500"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <AdvancedSearchFilter
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onSearch={handleSearch}
+          placeholder="Search by name, email, or role..."
+          filterOptions={filterOptions}
+          activeFilters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
+        />
 
-        {/* Users Table */}
         <UsersTable users={filteredUsers} onUserAction={handleUserAction} />
+
+        {filteredUsers.length === 0 && mockUsers.length > 0 && (
+          <div className="text-center py-12">
+            <div className="h-12 w-12 text-amber-400 mx-auto mb-4">👥</div>
+            <h3 className="text-lg font-medium text-amber-900 mb-2">No users found</h3>
+            <p className="text-amber-600 mb-6">Try adjusting your search terms or filters.</p>
+            <Button 
+              onClick={handleClearFilters}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
