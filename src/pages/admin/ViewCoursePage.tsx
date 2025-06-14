@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FormLayout } from '@/components/admin/FormLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -194,9 +195,9 @@ export default function ViewCoursePage() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <Badge variant="outline" className="text-xs">
-                          {lesson.lessonType}
+                          {lesson.type}
                         </Badge>
-                        <span className="text-xs text-amber-600">{lesson.duration}</span>
+                        <span className="text-xs text-amber-600">{lesson.contents.length} content(s)</span>
                       </div>
                     </div>
                   ))}
