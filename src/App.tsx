@@ -18,6 +18,8 @@ import SettingsPage from "./pages/admin/SettingsPage";
 import NotificationsPage from "./pages/admin/NotificationsPage";
 import UsersPage from "./pages/admin/UsersPage";
 import CreateCoursePage from "./pages/admin/CreateCoursePage";
+import EditCoursePage from "./pages/admin/EditCoursePage";
+import ViewCoursePage from "./pages/admin/ViewCoursePage";
 import CreateLessonPage from "./pages/admin/CreateLessonPage";
 import CreateQuizPage from "./pages/admin/CreateQuizPage";
 import CreateChallengePage from "./pages/admin/CreateChallengePage";
@@ -56,6 +58,16 @@ const App = () => {
               <Route path="/admin/courses/new" element={
                 <ProtectedRoute>
                   <CreateCoursePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/courses/:id/edit" element={
+                <ProtectedRoute>
+                  <EditCoursePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/courses/:id/view" element={
+                <ProtectedRoute>
+                  <ViewCoursePage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/lessons" element={
@@ -106,17 +118,6 @@ const App = () => {
               <Route path="/admin/users" element={
                 <ProtectedRoute>
                   <UsersPage />
-                </ProtectedRoute>
-              } />
-              {/* Course specific routes */}
-              <Route path="/admin/courses/:id" element={
-                <ProtectedRoute>
-                  <div className="p-8 text-center text-amber-900">Course details coming soon!</div>
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/courses/:id/edit" element={
-                <ProtectedRoute>
-                  <div className="p-8 text-center text-amber-900">Edit course form coming soon!</div>
                 </ProtectedRoute>
               } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

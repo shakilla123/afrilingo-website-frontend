@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, Book, Settings, User, Search, List, Users, BookOpen, Trophy, Bell } from 'lucide-react';
+import { LayoutDashboard, Book, Settings, User, Search, List, Users, BookOpen, Trophy, Bell, Globe } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -23,6 +23,13 @@ const menuItems = [
     icon: LayoutDashboard,
     description: "Overview & Analytics",
     color: "from-blue-500 to-blue-600"
+  },
+  {
+    title: "Languages",
+    url: "/admin/languages",
+    icon: Globe,
+    description: "Manage Languages",
+    color: "from-emerald-500 to-emerald-600"
   },
   {
     title: "Kinyarwanda Courses",

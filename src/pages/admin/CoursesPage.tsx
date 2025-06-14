@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { courseService, Course } from '@/services/courseService';
 
 export default function CoursesPage() {
@@ -20,6 +21,25 @@ export default function CoursesPage() {
     queryFn: courseService.getAll,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => courseService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({
+        title: "Course Deleted",
+        description: "The course has been deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Delete course error:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete the course. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
@@ -28,27 +48,13 @@ export default function CoursesPage() {
     });
   };
 
-  const handleEditCourse = (courseId: number, title: string) => {
-    toast({
-      title: "Edit Course",
-      description: `Editing "${title}" - Edit functionality coming soon`,
-    });
+  const handleEditCourse = (courseId: number) => {
+    navigate(`/admin/courses/${courseId}/edit`);
   };
 
   const handleDeleteCourse = async (courseId: number, title: string) => {
-    try {
-      await courseService.delete(courseId);
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast({
-        title: "Course Deleted",
-        description: `"${title}" has been deleted successfully.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Delete Failed",
-        description: `Failed to delete "${title}". Please try again.`,
-        variant: "destructive",
-      });
+    if (window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+      deleteMutation.mutate(courseId);
     }
   };
 
@@ -176,7 +182,7 @@ export default function CoursesPage() {
                       variant="outline" 
                       size="sm" 
                       className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
-                      onClick={() => handleEditCourse(course.id, course.title)}
+                      onClick={() => handleEditCourse(course.id)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
@@ -186,6 +192,7 @@ export default function CoursesPage() {
                       size="sm" 
                       className="border-red-300 text-red-700 hover:bg-red-100"
                       onClick={() => handleDeleteCourse(course.id, course.title)}
+                      disabled={deleteMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
