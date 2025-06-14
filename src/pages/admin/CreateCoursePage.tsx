@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Book } from 'lucide-react';
-import { languageService } from '@/services/languageService';
+import { languageService, Language } from '@/services/languageService';
 import { courseService, CreateCourseRequest } from '@/services/courseService';
 
 interface CourseFormData {
@@ -65,15 +65,19 @@ export default function CreateCoursePage() {
     setIsSubmitting(true);
     
     try {
+      const selectedLanguage = languages.find(lang => lang.id === parseInt(data.languageId));
+      
+      if (!selectedLanguage) {
+        throw new Error('Selected language not found');
+      }
+
       const courseData: CreateCourseRequest = {
         title: data.title,
         description: data.description,
         level: data.level,
         image: data.image || 'default-course.jpg',
-        isActive: true,
-        language: {
-          id: parseInt(data.languageId),
-        },
+        active: true,
+        language: selectedLanguage,
       };
 
       console.log('CreateCoursePage: Sending course creation request:', courseData);

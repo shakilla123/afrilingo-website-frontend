@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FormLayout } from '@/components/admin/FormLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,7 +41,21 @@ export default function ViewCoursePage() {
     );
   }
 
-  if (error || !course) {
+  if (error) {
+    return (
+      <FormLayout
+        title="View Course"
+        description="Course details and content"
+        backUrl="/admin/courses"
+      >
+        <div className="text-center text-red-600 p-8">
+          <p>Failed to load course. Please try again.</p>
+        </div>
+      </FormLayout>
+    );
+  }
+
+  if (!course) {
     return (
       <FormLayout
         title="View Course"
@@ -87,8 +100,8 @@ export default function ViewCoursePage() {
                 <Badge className={getLevelColor(course.level)}>
                   {course.level}
                 </Badge>
-                <Badge className={course.isActive ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
-                  {course.isActive ? 'Published' : 'Draft'}
+                <Badge className={course.active ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                  {course.active ? 'Published' : 'Draft'}
                 </Badge>
               </div>
             </div>

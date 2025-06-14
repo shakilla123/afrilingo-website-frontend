@@ -4,11 +4,12 @@ import { Language } from './languageService';
 
 export interface Course {
   id: number;
+  version: number;
   title: string;
   description: string;
   level: string;
   image: string;
-  isActive: boolean;
+  active: boolean;
   language: Language;
 }
 
@@ -17,10 +18,19 @@ export interface CreateCourseRequest {
   description: string;
   level: string;
   image: string;
-  isActive: boolean;
-  language: {
-    id: number;
-  };
+  active: boolean;
+  language: Language;
+}
+
+export interface UpdateCourseRequest {
+  id: number;
+  version: number;
+  title: string;
+  description: string;
+  level: string;
+  image: string;
+  active: boolean;
+  language: Language;
 }
 
 export const courseService = {
@@ -44,12 +54,12 @@ export const courseService = {
     return await httpClient.post('/courses', data);
   },
 
-  async update(id: number, data: Partial<CreateCourseRequest>): Promise<Course> {
+  async update(id: number, data: UpdateCourseRequest): Promise<Course> {
     return await httpClient.put(`/courses/${id}`, data);
   },
 
-  async setActivation(id: number, isActive: boolean): Promise<Course> {
-    return await httpClient.patch(`/courses/${id}/activation`, { isActive });
+  async setActivation(id: number, active: boolean): Promise<Course> {
+    return await httpClient.patch(`/courses/${id}/activation?active=${active}`);
   },
 
   async delete(id: number): Promise<void> {

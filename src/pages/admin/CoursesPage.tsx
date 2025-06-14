@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -151,11 +150,11 @@ export default function CoursesPage() {
                     </div>
                   </div>
                   <div className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
-                    course.isActive 
+                    course.active 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {course.isActive ? 'Published' : 'Draft'}
+                    {course.active ? 'Published' : 'Draft'}
                   </div>
                 </div>
               </CardHeader>
