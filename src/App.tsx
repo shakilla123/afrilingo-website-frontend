@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +23,7 @@ import CreateLessonPage from "./pages/admin/CreateLessonPage";
 import EditLessonPage from "./pages/admin/EditLessonPage";
 import ViewLessonPage from "./pages/admin/ViewLessonPage";
 import CreateQuizPage from "./pages/admin/CreateQuizPage";
+import EditQuizPage from "./pages/admin/EditQuizPage";
 import CreateChallengePage from "./pages/admin/CreateChallengePage";
 import LanguagesPage from "./pages/admin/LanguagesPage";
 import CreateLanguagePage from "./pages/admin/CreateLanguagePage";
@@ -31,6 +31,7 @@ import EditLanguagePage from "./pages/admin/EditLanguagePage";
 import ViewLanguagePage from "./pages/admin/ViewLanguagePage";
 import AnalyticsPage from "./pages/admin/AnalyticsPage";
 import NotFound from "./pages/NotFound";
+import ViewQuizPage from "./pages/admin/ViewQuizPage";
 
 const App = () => {
   // Create QueryClient inside the component to ensure proper React context
@@ -125,6 +126,16 @@ const App = () => {
               <Route path="/admin/quizzes/new" element={
                 <ProtectedRoute>
                   <CreateQuizPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/quizzes/:id/edit" element={
+                <ProtectedRoute>
+                  <EditQuizPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/quizzes/:id/view" element={
+                <ProtectedRoute>
+                  <ViewQuizPage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/challenges" element={

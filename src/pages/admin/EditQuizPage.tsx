@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FormLayout } from '@/components/admin/FormLayout';
 import { Button } from '@/components/ui/button';
@@ -116,7 +115,7 @@ export default function EditQuizPage() {
     );
   }
 
-  if (quizError || lessonsError || !quiz) {
+  if (quizError || lessonsError) {
     return (
       <FormLayout
         title="Edit Quiz"
@@ -125,6 +124,21 @@ export default function EditQuizPage() {
       >
         <div className="text-center text-red-600 p-8">
           <p>Failed to load quiz data. Please try again.</p>
+          <p className="text-xs mt-2">{quizError?.message || lessonsError?.message}</p>
+        </div>
+      </FormLayout>
+    );
+  }
+
+  if (!quiz) {
+    return (
+      <FormLayout
+        title="Edit Quiz"
+        description="Update quiz details and settings"
+        backUrl="/admin/quizzes"
+      >
+        <div className="text-center text-red-600 p-8">
+          <p>Quiz not found. It may have been deleted or does not exist.</p>
         </div>
       </FormLayout>
     );

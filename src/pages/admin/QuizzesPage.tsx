@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -148,32 +147,27 @@ export default function QuizzesPage() {
           onClearFilters={handleClearFilters}
         />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-full overflow-x-auto">
           {filteredQuizzes.map((quiz: Quiz) => (
-            <Card key={quiz.id} className="border-amber-200 hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
+            <Card key={quiz.id} className="border-amber-200 hover:shadow-lg transition-shadow w-full max-w-full min-w-0">
+              <CardHeader className="pb-4 min-w-0">
+                <div className="flex items-start justify-between min-w-0">
+                  <div className="flex items-center gap-3 min-w-0">
                     <span className="text-2xl">🧠</span>
                     <div className="min-w-0 flex-1">
-                      <CardTitle className="text-lg text-amber-900 truncate">{quiz.title}</CardTitle>
-                      <p className="text-sm text-amber-600">Lesson: {quiz.lesson.title}</p>
+                      <CardTitle className="text-lg text-amber-900 truncate min-w-0">{quiz.title}</CardTitle>
+                      <p className="text-sm text-amber-600 truncate min-w-0">Lesson: {quiz.lesson.title}</p>
                     </div>
                   </div>
-                  <Badge className="bg-blue-100 text-blue-800">
-                    Quiz
-                  </Badge>
+                  <Badge className="bg-blue-100 text-blue-800">Quiz</Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-amber-700 line-clamp-2">{quiz.description}</p>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-center">
+                <div className="space-y-4 min-w-0">
+                  <p className="text-sm text-amber-700 line-clamp-2 min-w-0">{quiz.description}</p>
+                  <div className="grid grid-cols-2 gap-4 text-center min-w-0">
                     <div>
-                      <div className="text-xl font-bold text-amber-900">
-                        {quiz.questions?.length || 0}
-                      </div>
+                      <div className="text-xl font-bold text-amber-900">{quiz.questions?.length || 0}</div>
                       <div className="text-xs text-amber-600">Questions</div>
                     </div>
                     <div>
@@ -184,12 +178,11 @@ export default function QuizzesPage() {
                       <div className="text-xs text-amber-600">Min Score</div>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 min-w-0">
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100 min-w-0"
                       onClick={() => handleViewQuiz(quiz.id)}
                     >
                       <Eye className="h-4 w-4 mr-2" />
@@ -198,7 +191,7 @@ export default function QuizzesPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100 min-w-0"
                       onClick={() => handleEditQuiz(quiz.id)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -207,7 +200,7 @@ export default function QuizzesPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="border-red-300 text-red-700 hover:bg-red-100"
+                      className="border-red-300 text-red-700 hover:bg-red-100 min-w-0"
                       onClick={() => handleDeleteQuiz(quiz.id, quiz.title)}
                     >
                       <Trash2 className="h-4 w-4" />

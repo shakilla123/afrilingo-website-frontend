@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -142,16 +141,16 @@ export default function CoursesPage() {
           onClearFilters={handleClearFilters}
         />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-full overflow-x-auto">
           {filteredCourses.map((course: Course) => (
-            <Card key={course.id} className="border-amber-200 hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
+            <Card key={course.id} className="border-amber-200 hover:shadow-lg transition-shadow w-full max-w-full min-w-0">
+              <CardHeader className="pb-4 min-w-0">
+                <div className="flex items-start justify-between min-w-0">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="text-3xl">🌍</div>
                     <div className="min-w-0 flex-1">
-                      <CardTitle className="text-lg text-amber-900 truncate">{course.title}</CardTitle>
-                      <p className="text-sm text-amber-600">{course.language.name} • {course.level}</p>
+                      <CardTitle className="text-lg text-amber-900 truncate min-w-0">{course.title}</CardTitle>
+                      <p className="text-sm text-amber-600 truncate min-w-0">{course.language.name} • {course.level}</p>
                     </div>
                   </div>
                   <div className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
@@ -164,14 +163,13 @@ export default function CoursesPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-amber-700 line-clamp-2">{course.description}</p>
-                  
-                  <div className="flex gap-2">
+                <div className="space-y-4 min-w-0">
+                  <p className="text-sm text-amber-700 line-clamp-2 min-w-0">{course.description}</p>
+                  <div className="flex gap-2 min-w-0">
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100 min-w-0"
                       onClick={() => handleViewCourse(course.id)}
                     >
                       <Eye className="h-4 w-4 mr-2" />
@@ -180,7 +178,7 @@ export default function CoursesPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100 min-w-0"
                       onClick={() => handleEditCourse(course.id)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -189,7 +187,7 @@ export default function CoursesPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="border-red-300 text-red-700 hover:bg-red-100"
+                      className="border-red-300 text-red-700 hover:bg-red-100 min-w-0"
                       onClick={() => handleDeleteCourse(course.id, course.title)}
                     >
                       <Trash2 className="h-4 w-4" />

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -166,44 +165,38 @@ export default function LessonsPage() {
           onClearFilters={handleClearFilters}
         />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-full overflow-x-auto">
           {filteredLessons.map((lesson: Lesson) => (
-            <Card key={lesson.id} className="border-amber-200 hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
+            <Card key={lesson.id} className="border-amber-200 hover:shadow-lg transition-shadow w-full max-w-full min-w-0">
+              <CardHeader className="pb-4 min-w-0">
+                <div className="flex items-start justify-between min-w-0">
+                  <div className="flex items-center gap-3 min-w-0">
                     <span className="text-2xl">{getLessonTypeIcon(lesson.type)}</span>
                     <div className="min-w-0 flex-1">
-                      <CardTitle className="text-lg text-amber-900 truncate">{lesson.title}</CardTitle>
-                      <p className="text-sm text-amber-600">Course: {lesson.course.title}</p>
+                      <CardTitle className="text-lg text-amber-900 truncate min-w-0">{lesson.title}</CardTitle>
+                      <p className="text-sm text-amber-600 truncate min-w-0">Course: {lesson.course.title}</p>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Badge className={getLessonTypeColor(lesson.type)}>
-                      {lesson.type}
-                    </Badge>
+                    <Badge className={getLessonTypeColor(lesson.type)}>{lesson.type}</Badge>
                     {lesson.required && (
-                      <Badge variant="outline" className="text-xs border-red-300 text-red-700">
-                        Required
-                      </Badge>
+                      <Badge variant="outline" className="text-xs border-red-300 text-red-700">Required</Badge>
                     )}
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-amber-700 line-clamp-2">{lesson.description}</p>
-                  
-                  <div className="flex items-center justify-between text-xs text-amber-600">
+                <div className="space-y-4 min-w-0">
+                  <p className="text-sm text-amber-700 line-clamp-2 min-w-0">{lesson.description}</p>
+                  <div className="flex items-center justify-between text-xs text-amber-600 min-w-0">
                     <span>Order: {lesson.orderIndex}</span>
                     <span>{lesson.contents.length} content(s)</span>
                   </div>
-                  
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 min-w-0">
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100 min-w-0"
                       onClick={() => handleViewLesson(lesson.id)}
                     >
                       <Eye className="h-4 w-4 mr-2" />
@@ -212,7 +205,7 @@ export default function LessonsPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100"
+                      className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-100 min-w-0"
                       onClick={() => handleEditLesson(lesson.id)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -221,7 +214,7 @@ export default function LessonsPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="border-red-300 text-red-700 hover:bg-red-100"
+                      className="border-red-300 text-red-700 hover:bg-red-100 min-w-0"
                       onClick={() => handleDeleteLesson(lesson.id, lesson.title)}
                     >
                       <Trash2 className="h-4 w-4" />
