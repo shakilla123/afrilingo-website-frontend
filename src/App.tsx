@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,6 +30,10 @@ import EditLanguagePage from "./pages/admin/EditLanguagePage";
 import ViewLanguagePage from "./pages/admin/ViewLanguagePage";
 import AnalyticsPage from "./pages/admin/AnalyticsPage";
 import NotFound from "./pages/NotFound";
+import QuestionsPage from "./pages/admin/QuestionsPage";
+import CreateQuestionPage from "./pages/admin/CreateQuestionPage";
+import EditQuestionPage from "./pages/admin/EditQuestionPage";
+import ViewQuestionPage from "./pages/admin/ViewQuestionPage";
 
 const App = () => {
   // Create QueryClient inside the component to ensure proper React context
@@ -115,6 +118,26 @@ const App = () => {
               <Route path="/admin/lessons/:id/view" element={
                 <ProtectedRoute>
                   <ViewLessonPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/questions" element={
+                <ProtectedRoute>
+                  <QuestionsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/questions/new" element={
+                <ProtectedRoute>
+                  <CreateQuestionPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/questions/:id/edit" element={
+                <ProtectedRoute>
+                  <EditQuestionPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/questions/:id/view" element={
+                <ProtectedRoute>
+                  <ViewQuestionPage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/quizzes" element={

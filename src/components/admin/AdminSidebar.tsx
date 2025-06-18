@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { LayoutDashboard, Book, Settings, User, Search, List, Users, BookOpen, Trophy, Bell, Globe } from 'lucide-react';
+import { LayoutDashboard, Book, Settings, User, Search, List, Users, BookOpen, Trophy, Bell, Globe, HelpCircle } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -43,6 +44,13 @@ const menuItems = [
     icon: BookOpen,
     description: "Create & Edit",
     color: "from-purple-500 to-purple-600"
+  },
+  {
+    title: "Questions",
+    url: "/admin/questions",
+    icon: HelpCircle,
+    description: "Quiz Questions",
+    color: "from-indigo-500 to-indigo-600"
   },
   {
     title: "Quizzes",
