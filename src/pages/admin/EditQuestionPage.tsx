@@ -27,9 +27,14 @@ export default function EditQuestionPage() {
     enabled: !!id,
   });
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    questionText: string;
+    questionType: 'MULTIPLE_CHOICE' | 'TRUE_FALSE' | 'FILL_BLANK';
+    mediaUrl: string;
+    points: number;
+  }>({
     questionText: '',
-    questionType: 'MULTIPLE_CHOICE' as const,
+    questionType: 'MULTIPLE_CHOICE',
     mediaUrl: '',
     points: 1,
   });
@@ -189,7 +194,7 @@ export default function EditQuestionPage() {
       <FormLayout
         title="Edit Question"
         description="Update question details and options"
-        onBack={() => navigate('/admin/questions')}
+        backUrl="/admin/questions"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card className="border-amber-200">
@@ -302,8 +307,7 @@ export default function EditQuestionPage() {
                       <Label className="text-sm">Correct</Label>
                     </div>
 
-                    {(formData.questionType === 'MULTIPLE_CHOICE' && options.length > 2) || 
-                     (formData.questionType === 'TRUE_FALSE' && false) && (
+                    {formData.questionType === 'MULTIPLE_CHOICE' && options.length > 2 && (
                       <Button
                         type="button"
                         variant="outline"

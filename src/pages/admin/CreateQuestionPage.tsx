@@ -145,7 +145,7 @@ export default function CreateQuestionPage() {
       <FormLayout
         title="Create Question"
         description="Add a new question to your quiz bank"
-        onBack={() => navigate('/admin/questions')}
+        backUrl="/admin/questions"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card className="border-amber-200">

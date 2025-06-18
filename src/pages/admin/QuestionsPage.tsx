@@ -45,25 +45,25 @@ export default function QuestionsPage() {
       question.questionType.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Type filter
-    const matchesType = !filters.type ||
-      question.questionType === filters.type;
+    const matchesType = !filters.category ||
+      question.questionType === filters.category;
 
     // Points filter
-    const matchesPoints = !filters.points ||
-      (filters.points === 'low' && question.points <= 5) ||
-      (filters.points === 'medium' && question.points > 5 && question.points <= 10) ||
-      (filters.points === 'high' && question.points > 10);
+    const matchesPoints = !filters.difficulty ||
+      (filters.difficulty === 'low' && question.points <= 5) ||
+      (filters.difficulty === 'medium' && question.points > 5 && question.points <= 10) ||
+      (filters.difficulty === 'high' && question.points > 10);
 
     return matchesSearch && matchesType && matchesPoints;
   });
 
   const filterOptions = {
-    type: [
+    category: [
       { value: 'MULTIPLE_CHOICE', label: 'Multiple Choice' },
       { value: 'TRUE_FALSE', label: 'True/False' },
       { value: 'FILL_BLANK', label: 'Fill in the Blank' }
     ],
-    points: [
+    difficulty: [
       { value: 'low', label: 'Low (≤5 pts)' },
       { value: 'medium', label: 'Medium (6-10 pts)' },
       { value: 'high', label: 'High (>10 pts)' }

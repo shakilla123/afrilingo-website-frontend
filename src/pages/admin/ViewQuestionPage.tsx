@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { FormLayout } from '@/components/admin/FormLayout';
@@ -96,7 +95,7 @@ export default function ViewQuestionPage() {
       <FormLayout
         title="View Question"
         description="Question details and options"
-        onBack={() => navigate('/admin/questions')}
+        backUrl="/admin/questions"
       >
         <div className="space-y-6">
           <Card className="border-amber-200">

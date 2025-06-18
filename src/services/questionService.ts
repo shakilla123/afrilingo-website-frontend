@@ -45,23 +45,19 @@ export interface PaginatedResponse<T> {
 
 export const questionService = {
   async getAll(): Promise<Question[]> {
-    const response = await httpClient.get('/questions');
-    return response.data;
+    return await httpClient.get<Question[]>('/questions');
   },
 
   async getById(id: number): Promise<Question> {
-    const response = await httpClient.get(`/questions/${id}`);
-    return response.data;
+    return await httpClient.get<Question>(`/questions/${id}`);
   },
 
   async getByQuizId(quizId: number): Promise<Question[]> {
-    const response = await httpClient.get(`/questions/quiz/${quizId}`);
-    return response.data;
+    return await httpClient.get<Question[]>(`/questions/quiz/${quizId}`);
   },
 
   async getByQuizIdAndType(quizId: number, questionType: string): Promise<Question[]> {
-    const response = await httpClient.get(`/questions/quiz/${quizId}/type/${questionType}`);
-    return response.data;
+    return await httpClient.get<Question[]>(`/questions/quiz/${quizId}/type/${questionType}`);
   },
 
   async getPaginated(page: number = 0, size: number = 20, sort?: string[]): Promise<PaginatedResponse<Question>> {
@@ -74,41 +70,34 @@ export const questionService = {
       sort.forEach(s => params.append('pageable.sort', s));
     }
     
-    const response = await httpClient.get(`/questions/paginated?${params}`);
-    return response.data;
+    return await httpClient.get<PaginatedResponse<Question>>(`/questions/paginated?${params}`);
   },
 
   async search(keyword: string): Promise<Question[]> {
-    const response = await httpClient.get(`/questions/search?keyword=${encodeURIComponent(keyword)}`);
-    return response.data;
+    return await httpClient.get<Question[]>(`/questions/search?keyword=${encodeURIComponent(keyword)}`);
   },
 
   async getOptions(id: number): Promise<QuestionOption[]> {
-    const response = await httpClient.get(`/questions/${id}/options`);
-    return response.data;
+    return await httpClient.get<QuestionOption[]>(`/questions/${id}/options`);
   },
 
   async create(data: CreateQuestionRequest): Promise<Question> {
-    const response = await httpClient.post('/questions', data);
-    return response.data;
+    return await httpClient.post<Question>('/questions', data);
   },
 
   async update(id: number, data: Partial<CreateQuestionRequest>): Promise<Question> {
-    const response = await httpClient.put(`/questions/${id}`, { id, ...data });
-    return response.data;
+    return await httpClient.put<Question>(`/questions/${id}`, { id, ...data });
   },
 
   async delete(id: number): Promise<void> {
-    await httpClient.delete(`/questions/${id}`);
+    await httpClient.delete<void>(`/questions/${id}`);
   },
 
   async addOption(id: number, optionData: CreateQuestionOptionRequest): Promise<Question> {
-    const response = await httpClient.post(`/questions/${id}/options`, optionData);
-    return response.data;
+    return await httpClient.post<Question>(`/questions/${id}/options`, optionData);
   },
 
   async deleteOption(questionId: number, optionId: number): Promise<Question> {
-    const response = await httpClient.delete(`/questions/${questionId}/options/${optionId}`);
-    return response.data;
+    return await httpClient.delete<Question>(`/questions/${questionId}/options/${optionId}`);
   },
 };
