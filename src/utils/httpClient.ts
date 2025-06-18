@@ -7,7 +7,7 @@ class HttpClient {
   constructor() {
     this.baseURL = import.meta.env.PROD 
       ? 'https://api.afrilingo.com/api/v1'
-      : 'http://192.168.1.72:8081/api/v1';
+      : 'http://localhost:8081/api/v1';
   }
 
   private async request<T>(

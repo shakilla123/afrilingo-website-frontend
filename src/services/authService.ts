@@ -25,7 +25,7 @@ const getApiBaseUrl = () => {
   if (import.meta.env.PROD) {
     return 'https://api.afrilingo.com/api/v1';
   }
-  return 'http://192.168.1.72:8081/api/v1';
+  return 'http://localhost:8081/api/v1';
 };
 
 const API_BASE_URL = getApiBaseUrl();
