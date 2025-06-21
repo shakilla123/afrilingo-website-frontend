@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,9 @@ import { Trash2, Plus, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, Link } from 'react-router-dom';
 import { questionService, CreateQuestionRequest } from '@/services/questionService';
+import { useQuery } from '@tanstack/react-query';
+import { quizService, Quiz } from '@/services/quizService';
+import { Select as QuizSelect } from '@/components/ui/select';
 
 interface QuestionOption {
   optionText: string;
@@ -36,6 +38,12 @@ export default function CreateQuestionPage() {
     { optionText: '', optionMedia: '', correct: false },
     { optionText: '', optionMedia: '', correct: false }
   ]);
+
+  const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
+  const { data: quizzes = [], isLoading: quizzesLoading } = useQuery({
+    queryKey: ['quizzes'],
+    queryFn: quizService.getAll,
+  });
 
   const handleInputChange = (field: keyof CreateQuestionRequest, value: any) => {
     setFormData(prev => ({
@@ -73,11 +81,27 @@ export default function CreateQuestionPage() {
     }
   };
 
+  // Utility to clean undefined and empty string fields
+  function clean(obj: any) {
+    return Object.fromEntries(
+      Object.entries(obj).filter(([_, v]) => v !== undefined && v !== "")
+    );
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      if (!selectedQuizId) {
+        toast({
+          title: 'Validation Error',
+          description: 'Please select a quiz to associate with this question.',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
       // Validate that at least one option is correct for MULTIPLE_CHOICE and TRUE_FALSE
       if (formData.questionType !== 'FILL_BLANK') {
         const hasCorrectAnswer = options.some(option => option.correct && option.optionText.trim());
@@ -87,44 +111,37 @@ export default function CreateQuestionPage() {
             description: "Please mark at least one option as correct.",
             variant: "destructive",
           });
+          setIsLoading(false);
           return;
         }
       }
-
       // Filter out empty options and clean data
-      const validOptions = options.filter(option => option.optionText.trim());
-      
-      const questionData: CreateQuestionRequest = {
+      const validOptions = options
+        .filter(option => option.optionText.trim())
+        .map(option => ({
+          id: null,
+          optionText: option.optionText.trim(),
+          optionMedia: option.optionMedia?.trim() || "",
+          correct: option.correct
+        }));
+      const questionData = {
+        id: null,
         questionText: formData.questionText.trim(),
         questionType: formData.questionType,
-        mediaUrl: formData.mediaUrl?.trim() || undefined,
+        mediaUrl: formData.mediaUrl?.trim() || "",
         points: formData.points,
-        options: formData.questionType === 'FILL_BLANK' ? undefined : validOptions.map(option => ({
-          optionText: option.optionText.trim(),
-          optionMedia: option.optionMedia?.trim() || undefined,
-          correct: option.correct
-        }))
+        quiz: { id: selectedQuizId },
+        options: formData.questionType === 'FILL_BLANK' ? [] : validOptions
       };
-
-      console.log('Sending question data:', questionData);
-      
+      console.log('Sending strict question data:', questionData);
       await questionService.create(questionData);
-      
       toast({
         title: "Question Created",
         description: "The question has been created successfully.",
       });
-      
       navigate('/admin/questions');
     } catch (error) {
       console.error('Create question error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        formData,
-        options
-      });
-      
       toast({
         title: "Creation Failed",
         description: "Failed to create question. Please check the console for details.",
@@ -205,19 +222,24 @@ export default function CreateQuestionPage() {
                         </SelectContent>
                       </Select>
                     </div>
-
                     <div className="space-y-2">
-                      <Label htmlFor="points">Points</Label>
-                      <Input
-                        id="points"
-                        type="number"
-                        min="1"
-                        placeholder="Enter points"
-                        value={formData.points}
-                        onChange={(e) => handleInputChange('points', parseInt(e.target.value) || 1)}
-                        className="border-amber-300 focus:border-amber-500"
-                        required
-                      />
+                      <Label htmlFor="quiz">Quiz</Label>
+                      <QuizSelect
+                        value={selectedQuizId ? String(selectedQuizId) : ''}
+                        onValueChange={val => setSelectedQuizId(Number(val))}
+                        disabled={quizzesLoading}
+                      >
+                        <SelectTrigger className="border-amber-300 focus:border-amber-500">
+                          <SelectValue placeholder="Select quiz" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {quizzes.map((quiz: Quiz) => (
+                            <SelectItem key={quiz.id} value={String(quiz.id)}>
+                              {quiz.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </QuizSelect>
                     </div>
                   </div>
 

@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { FormLayout } from '@/components/admin/FormLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,9 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { questionService, Question, QuestionOption } from '@/services/questionService';
 
@@ -191,11 +189,20 @@ export default function EditQuestionPage() {
 
   return (
     <AdminLayout>
-      <FormLayout
-        title="Edit Question"
-        description="Update question details and options"
-        backUrl="/admin/questions"
-      >
+      <div className="space-y-6">
+        <div className="flex items-center gap-4 mb-2">
+          <Link to="/admin/questions">
+            <Button variant="outline" size="sm" className="border-amber-300 text-amber-700 hover:bg-amber-100">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-amber-900">Edit Question</h1>
+            <p className="text-amber-700">Edit the details of this question</p>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card className="border-amber-200">
             <CardHeader>
@@ -342,7 +349,7 @@ export default function EditQuestionPage() {
             </Button>
           </div>
         </form>
-      </FormLayout>
+      </div>
     </AdminLayout>
   );
 }

@@ -34,6 +34,8 @@ import QuestionsPage from "./pages/admin/QuestionsPage";
 import CreateQuestionPage from "./pages/admin/CreateQuestionPage";
 import EditQuestionPage from "./pages/admin/EditQuestionPage";
 import ViewQuestionPage from "./pages/admin/ViewQuestionPage";
+import ViewQuizPage from "./pages/admin/ViewQuizPage";
+import EditQuizPage from "./pages/admin/EditQuizPage";
 
 const App = () => {
   // Create QueryClient inside the component to ensure proper React context
@@ -148,6 +150,16 @@ const App = () => {
               <Route path="/admin/quizzes/new" element={
                 <ProtectedRoute>
                   <CreateQuizPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/quizzes/:id/view" element={
+                <ProtectedRoute>
+                  <ViewQuizPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/quizzes/:id/edit" element={
+                <ProtectedRoute>
+                  <EditQuizPage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/challenges" element={

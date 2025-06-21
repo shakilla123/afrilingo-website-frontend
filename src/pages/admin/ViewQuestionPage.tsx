@@ -1,12 +1,11 @@
 import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { FormLayout } from '@/components/admin/FormLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Edit, Trash2, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { questionService } from '@/services/questionService';
 
@@ -92,141 +91,148 @@ export default function ViewQuestionPage() {
 
   return (
     <AdminLayout>
-      <FormLayout
-        title="View Question"
-        description="Question details and options"
-        backUrl="/admin/questions"
-      >
-        <div className="space-y-6">
-          <Card className="border-amber-200">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{getQuestionTypeIcon(question.questionType)}</span>
-                  <div>
-                    <CardTitle className="text-xl text-amber-900">{question.questionText}</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge className={getQuestionTypeColor(question.questionType)}>
-                        {question.questionType.replace('_', ' ')}
-                      </Badge>
-                      <Badge variant="outline" className="border-amber-300 text-amber-700">
-                        {question.points} {question.points === 1 ? 'Point' : 'Points'}
-                      </Badge>
-                    </div>
+      <div className="space-y-6">
+        <div className="flex items-center gap-4 mb-2">
+          <Link to="/admin/questions">
+            <Button variant="outline" size="sm" className="border-amber-300 text-amber-700 hover:bg-amber-100">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-amber-900">View Question</h1>
+            <p className="text-amber-700">View details of this question</p>
+          </div>
+        </div>
+
+        <Card className="border-amber-200">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{getQuestionTypeIcon(question.questionType)}</span>
+                <div>
+                  <CardTitle className="text-xl text-amber-900">{question.questionText}</CardTitle>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge className={getQuestionTypeColor(question.questionType)}>
+                      {question.questionType.replace('_', ' ')}
+                    </Badge>
+                    <Badge variant="outline" className="border-amber-300 text-amber-700">
+                      {question.points} {question.points === 1 ? 'Point' : 'Points'}
+                    </Badge>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={handleEdit}
-                    className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={handleDelete}
-                    className="border-red-300 text-red-700 hover:bg-red-100"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
                 </div>
               </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleEdit}
+                  className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleDelete}
+                  className="border-red-300 text-red-700 hover:bg-red-100"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {question.mediaUrl && (
+              <div className="mb-4">
+                <h4 className="text-sm font-medium text-amber-900 mb-2">Media</h4>
+                <div className="p-3 bg-amber-50 rounded-lg">
+                  <a 
+                    href={question.mediaUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-amber-700 hover:underline text-sm break-all"
+                  >
+                    {question.mediaUrl}
+                  </a>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {question.questionType !== 'FILL_BLANK' && question.options && question.options.length > 0 && (
+          <Card className="border-amber-200">
+            <CardHeader>
+              <CardTitle className="text-amber-900">Answer Options</CardTitle>
             </CardHeader>
             <CardContent>
-              {question.mediaUrl && (
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-amber-900 mb-2">Media</h4>
-                  <div className="p-3 bg-amber-50 rounded-lg">
-                    <a 
-                      href={question.mediaUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-amber-700 hover:underline text-sm break-all"
-                    >
-                      {question.mediaUrl}
-                    </a>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {question.questionType !== 'FILL_BLANK' && question.options && question.options.length > 0 && (
-            <Card className="border-amber-200">
-              <CardHeader>
-                <CardTitle className="text-amber-900">Answer Options</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {question.options.map((option, index) => (
-                    <div 
-                      key={option.id} 
-                      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-colors ${
-                        option.correct 
-                          ? 'border-green-300 bg-green-50' 
-                          : 'border-amber-200 bg-amber-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {option.correct ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <XCircle className="h-5 w-5 text-gray-400" />
-                        )}
-                        <span className="font-medium text-sm text-amber-900">
-                          Option {index + 1}
-                        </span>
-                      </div>
-                      
-                      <div className="flex-1">
-                        <p className={`text-sm ${option.correct ? 'text-green-800' : 'text-amber-800'}`}>
-                          {option.optionText}
-                        </p>
-                        {option.optionMedia && (
-                          <a 
-                            href={option.optionMedia} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-xs text-amber-600 hover:underline mt-1 block"
-                          >
-                            Media: {option.optionMedia}
-                          </a>
-                        )}
-                      </div>
-
-                      {option.correct && (
-                        <Badge className="bg-green-100 text-green-800">
-                          Correct Answer
-                        </Badge>
+              <div className="space-y-3">
+                {question.options.map((option, index) => (
+                  <div 
+                    key={option.id} 
+                    className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-colors ${
+                      option.correct 
+                        ? 'border-green-300 bg-green-50' 
+                        : 'border-amber-200 bg-amber-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {option.correct ? (
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-gray-400" />
+                      )}
+                      <span className="font-medium text-sm text-amber-900">
+                        Option {index + 1}
+                      </span>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <p className={`text-sm ${option.correct ? 'text-green-800' : 'text-amber-800'}`}>
+                        {option.optionText}
+                      </p>
+                      {option.optionMedia && (
+                        <a 
+                          href={option.optionMedia} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-amber-600 hover:underline mt-1 block"
+                        >
+                          Media: {option.optionMedia}
+                        </a>
                       )}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
-          {question.questionType === 'FILL_BLANK' && (
-            <Card className="border-amber-200">
-              <CardHeader>
-                <CardTitle className="text-amber-900">Fill in the Blank</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <p className="text-purple-800 text-sm">
-                    This is a fill-in-the-blank question. Students will need to provide their own answer.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </FormLayout>
+                    {option.correct && (
+                      <Badge className="bg-green-100 text-green-800">
+                        Correct Answer
+                      </Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {question.questionType === 'FILL_BLANK' && (
+          <Card className="border-amber-200">
+            <CardHeader>
+              <CardTitle className="text-amber-900">Fill in the Blank</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="p-4 bg-purple-50 rounded-lg">
+                <p className="text-purple-800 text-sm">
+                  This is a fill-in-the-blank question. Students will need to provide their own answer.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </AdminLayout>
   );
 }

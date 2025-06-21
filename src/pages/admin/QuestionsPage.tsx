@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -35,7 +34,18 @@ export default function QuestionsPage() {
   console.log('Type of questionsData:', typeof questionsData);
   console.log('Is array:', Array.isArray(questionsData));
 
-  const allQuestions = Array.isArray(questionsData) ? questionsData : [];
+  // Ensure we always have an array to work with
+  let allQuestions: Question[] = [];
+  if (Array.isArray(questionsData)) {
+    allQuestions = questionsData;
+  } else if (
+    questionsData &&
+    typeof questionsData === 'object' &&
+    'content' in questionsData &&
+    Array.isArray((questionsData as any).content)
+  ) {
+    allQuestions = (questionsData as any).content;
+  }
 
   // Filter questions based on search query and filters
   const filteredQuestions = allQuestions.filter((question: Question) => {

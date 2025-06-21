@@ -1,4 +1,3 @@
-
 import { httpClient } from '@/utils/httpClient';
 
 export interface QuestionOption {
@@ -45,11 +44,13 @@ export interface PaginatedResponse<T> {
 
 export const questionService = {
   async getAll(): Promise<Question[]> {
-    return await httpClient.get<Question[]>('/questions');
+    const response = await httpClient.get<{ data: Question[] }>('/questions');
+    return response.data;
   },
 
   async getById(id: number): Promise<Question> {
-    return await httpClient.get<Question>(`/questions/${id}`);
+    const response = await httpClient.get<{ data: Question }>(`/questions/${id}`);
+    return response.data;
   },
 
   async getByQuizId(quizId: number): Promise<Question[]> {
@@ -82,7 +83,8 @@ export const questionService = {
   },
 
   async create(data: CreateQuestionRequest): Promise<Question> {
-    return await httpClient.post<Question>('/questions', data);
+    const response = await httpClient.post<{ data: Question }>('/questions', data);
+    return response.data;
   },
 
   async update(id: number, data: Partial<CreateQuestionRequest>): Promise<Question> {
